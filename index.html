@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>xxxvazadoos - Encontre Grupos de WhatsApp e Telegram</title>
+    <title>JINOCA - O Melhor Diretório de Grupos de WhatsApp e Telegram</title>
     
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="O maior diretório de grupos de WhatsApp e Telegram. Encontre, participe e adicione novos grupos sobre amizade, jogos, notícias, animes, tecnologia e muito mais. Junte-se a comunidades ativas agora!">
-    <meta name="keywords" content="grupos whatsapp, grupos telegram, link de grupos, diretório de grupos, grupos de amizade, grupos de jogos, grupos de animes, xxxvazadoos, grupos 2024, participar de grupos">
+    <!-- SEO Meta Tags Otimizadas para JINOCA -->
+    <meta name="description" content="Encontre e participe dos melhores grupos de WhatsApp e Telegram no JINOCA! O maior diretório de links para grupos de amizade, animes, jogos, vendas e muito mais. Adicione seu grupo grátis!">
+    <meta name="keywords" content="jinoca, grupos whatsapp, grupos telegram, link de grupos, grupos de zap, diretório de grupos, grupos de amizade, grupos de jogos, grupos de animes, links de grupos 2025, participar de grupos">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://xxxvazadoos.com/" /> <!-- Substitua pelo seu domínio real -->
+    <link rel="canonical" href="https://jinoca.com/" />
 
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,24 +51,16 @@
     </script>
     <style>
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        /* SOLUÇÃO PARA O FUNDO FIXO */
-        .background-container { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100vh; /* Usa a altura da viewport para evitar pulos em mobile */
-            z-index: -2; 
-            transition: opacity 0.5s ease-in-out; 
-            background-size: cover; 
-            background-position: center center;
-        }
+        .background-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -2; transition: opacity 0.5s ease-in-out; background-size: cover; background-position: center center; }
         #main-background { background-image: url('https://i.imghippo.com/files/hnKZ9316s.jpg'); }
         #add-group-background { background-image: url('https://i.imghippo.com/files/fvo2457NgU.jpg'); opacity: 0; }
         #detail-background { background-image: url('https://i.imghippo.com/files/jGI7728Ls.jpg'); opacity: 0; }
         .bg-overlay::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); z-index: -1; }
         .shimmer-bg { background: linear-gradient(to right, #2a2a2a 0%, #3a3a3a 50%, #2a2a2a 100%); background-size: 2000px 100%; animation: shimmer 2s infinite linear; }
         .view-container.hidden { display: none; }
+        .star-rating label { color: #4a4a4a; cursor: pointer; transition: color 0.2s; }
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #FFD700; }
+        .star-rating input:checked + label { color: #FFD700; }
     </style>
 </head>
 <body class="bg-background-dark text-text-dark font-sans">
@@ -80,7 +72,7 @@
     <div id="app-container">
         <header class="sticky top-0 z-30 bg-surface-dark/50 backdrop-blur-lg border-b border-gray-800">
             <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20">
-                <a href="#home" class="nav-link flex items-center gap-3"><img src="https://i.imghippo.com/files/RNE8811Hk.jpg" alt="Logo xxxvazadoos" class="h-12 w-12 object-cover rounded-full border-2 border-primary"><h1 class="text-2xl font-bold text-white hidden sm:block">xxxvazadoos</h1></a>
+                <a href="#home" class="nav-link flex items-center gap-3"><img src="https://i.imghippo.com/files/RNE8811Hk.jpg" alt="Logo JINOCA" class="h-12 w-12 object-cover rounded-full border-2 border-primary"><h1 class="text-2xl font-bold text-white hidden sm:block">JINOCA</h1></a>
                 <a href="#add-group" class="nav-link flex items-center gap-2 bg-primary text-black font-bold py-2 px-5 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:scale-105"><span class="material-symbols-outlined">add_circle</span><span class="hidden sm:inline">Adicionar Grupo</span></a>
             </nav>
         </header>
@@ -94,7 +86,7 @@
         <footer class="bg-surface-dark/50 mt-12 border-t border-gray-800">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-gray-400">
                 <div class="flex flex-col sm:flex-row justify-between items-center sm:text-left">
-                    <p>&copy; 2024 xxxvazadoos. Todos os direitos reservados.</p>
+                    <p>&copy; 2024 JINOCA. Todos os direitos reservados.</p>
                     <div class="mt-4 sm:mt-0">
                         <p class="mb-2">Precisa de ajuda? Contate o suporte:</p>
                         <a href="https://t.me/Hackermol" target="_blank" rel="noopener" class="text-gray-400 hover:text-primary transition-colors" aria-label="Contato via Telegram"><i class="fa-brands fa-telegram text-3xl"></i></a>
@@ -108,6 +100,11 @@
     <div id="toast" class="fixed bottom-5 right-5 z-[100] flex items-center gap-3 text-white py-3 px-5 rounded-lg shadow-2xl opacity-0 translate-y-10 transition-all duration-300">
         <span id="toast-icon" class="material-symbols-outlined"></span><p id="toast-message"></p>
     </div>
+    
+    <div id="processing-overlay" class="fixed inset-0 bg-black/80 z-[100] flex-col items-center justify-center hidden">
+        <img src="https://www.imagensanimadas.com/data/media/942/anime-imagem-animada-0186.gif" border="0" alt="processando..." />
+        <p class="text-white text-xl mt-4 font-bold">Publicando seu grupo...</p>
+    </div>
 
     <!-- Firebase -->
     <script type="module">
@@ -120,14 +117,15 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        let isAdmin = false, allGroups = [], dataLoaded = false;
+        let isAdmin = false, allGroups = [];
         let currentFilter = { search: '', category: 'Todos' };
         let searchDebounceTimeout;
         const views = { home: document.getElementById('home-view'), detail: document.getElementById('group-detail-view'), add: document.getElementById('add-group-view') };
         const backgrounds = { main: document.getElementById('main-background'), add: document.getElementById('add-group-background'), detail: document.getElementById('detail-background')};
         const toast = { element: document.getElementById('toast'), icon: document.getElementById('toast-icon'), message: document.getElementById('toast-message') };
+        const processingOverlay = document.getElementById('processing-overlay');
 
-        const switchView = (hash) => {
+        const switchView = async (hash) => {
             const [viewName, id] = hash.substring(1).split('/');
             Object.values(views).forEach(v => v.classList.add('hidden'));
             
@@ -143,19 +141,14 @@
                 renderAddGroupPage(groupToEdit);
                 views.add.classList.remove('hidden');
             } else if (isDetailPage && id) {
-                if (dataLoaded) {
+                views.detail.classList.remove('hidden');
+                if (allGroups.length > 0) {
                     const group = allGroups.find(g => g.id === id);
-                    if (group) renderSingleGroupPage(group);
+                    if (group) await renderSingleGroupPage(group);
                     else window.location.hash = '#home';
                 }
-                views.detail.classList.remove('hidden');
             } else {
-                if (!views.home.hasChildNodes()) renderHomePage();
                 views.home.classList.remove('hidden');
-                if (dataLoaded) {
-                    filterAndRenderGroups();
-                    renderCategoryFilters();
-                }
             }
             window.scrollTo(0, 0);
         };
@@ -174,8 +167,17 @@
         
         const renderHomePage = () => {
              views.home.innerHTML = `
-                <div class="text-center mb-10"><h2 class="text-4xl md:text-5xl font-extrabold mb-3 text-white">Encontre os Melhores Grupos</h2><p class="text-lg text-gray-300 max-w-2xl mx-auto">Sua busca por comunidades incríveis de WhatsApp e Telegram termina aqui.</p></div>
-                <div class="mb-10 p-4 bg-surface-dark/70 rounded-xl backdrop-blur-sm sticky top-[88px] z-20"><div class="relative mb-4"><span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span><input type="text" id="search-input" placeholder="Pesquisar por nome, tema ou categoria..." class="w-full bg-background-dark border-gray-700 rounded-lg pl-12 pr-4 py-3 text-white focus:ring-primary focus:border-primary"></div><div id="category-filters-container" class="flex flex-wrap gap-2 justify-center"></div></div>
+                <div class="text-center mb-10">
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-3 text-white">Encontre os Melhores Grupos</h2>
+                    <p class="text-lg text-gray-300 max-w-2xl mx-auto">Sua busca por comunidades incríveis de WhatsApp e Telegram termina aqui.</p>
+                </div>
+                <div class="mb-10 p-4 bg-surface-dark/70 rounded-xl backdrop-blur-sm sticky top-[88px] z-10">
+                     <div class="relative">
+                          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                          <input type="text" id="search-input" placeholder="Pesquisar por nome, tema ou categoria..." class="w-full bg-background-dark border-gray-700 rounded-lg pl-12 pr-4 py-3 text-white focus:ring-primary focus:border-primary">
+                     </div>
+                     <div id="category-filters-container" class="flex flex-wrap gap-2 justify-center pt-4"></div>
+                </div>
                 <div id="search-feedback" class="text-center text-gray-400 hidden my-4"><span class="material-symbols-outlined animate-spin">progress_activity</span><p>Buscando...</p></div>
                 <section id="featured-groups" class="mb-12"><h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-white"><span class="material-symbols-outlined text-primary">hotel_class</span>Destaques do Editor</h3><div id="featured-groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></section>
                 <section id="all-groups"><h3 class="text-2xl font-bold mb-6 text-white">Novos Grupos na Comunidade</h3><div id="all-groups-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></section>
@@ -220,7 +222,7 @@
                 ${adminHTML}</div>`;
         };
 
-        const renderSingleGroupPage = (group) => {
+        const renderSingleGroupPage = async (group) => {
             const recommended = allGroups.filter(g => g.id !== group.id && g.category === group.category).slice(0, 4);
             if (recommended.length < 4) {
                 recommended.push(...allGroups.filter(g => g.id !== group.id && !recommended.find(rec => rec.id === g.id)).slice(0, 4 - recommended.length));
@@ -241,11 +243,73 @@
                         </div>
                         <div class="px-6 sm:px-8 py-6 bg-gray-900/50"><a href="${group.link}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-black font-bold py-3 px-6 rounded-lg hover:bg-primary-dark transition-transform hover:scale-105 text-lg"><span class="material-symbols-outlined">login</span>Entrar no Grupo Agora</a></div>
                     </div>
-                    <section class="mt-16"><h3 class="text-3xl font-bold mb-8 text-white text-center">Recomendados para Você</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">${recommended.map(g => createGroupCardHTML(g, false)).join('')}</div></section>
+                    <section class="mt-16 bg-surface-dark/80 p-6 rounded-xl">
+                        <h3 class="text-2xl font-bold mb-4 text-white">Avaliações da Comunidade</h3>
+                        <div id="avg-rating" class="mb-4 flex items-center text-lg"></div>
+                        <div id="reviews-container" class="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2"></div>
+                        <form id="review-form" class="space-y-3 pt-6 border-t border-gray-700">
+                            <h4 class="font-bold text-lg">Deixe sua avaliação:</h4>
+                            <div class="star-rating flex flex-row-reverse justify-end">
+                                <input type="radio" id="star5" name="rating" value="5" class="hidden"/><label for="star5" class="text-4xl">★</label>
+                                <input type="radio" id="star4" name="rating" value="4" class="hidden"/><label for="star4" class="text-4xl">★</label>
+                                <input type="radio" id="star3" name="rating" value="3" class="hidden"/><label for="star3" class="text-4xl">★</label>
+                                <input type="radio" id="star2" name="rating" value="2" class="hidden"/><label for="star2" class="text-4xl">★</label>
+                                <input type="radio" id="star1" name="rating" value="1" class="hidden" required/><label for="star1" class="text-4xl">★</label>
+                            </div>
+                            <textarea id="comment" placeholder="Escreva seu comentário (opcional)..." class="w-full bg-background-dark border-gray-700 rounded-lg focus:ring-primary focus:border-primary" rows="3"></textarea>
+                            <button type="submit" class="bg-primary text-black font-bold py-2 px-5 rounded-lg hover:bg-primary-dark transition-colors">Enviar Avaliação</button>
+                        </form>
+                    </section>
+                    <section class="mt-16"><h3 class="text-3xl font-bold mb-8 text-white text-center">Recomendados</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">${recommended.map(g => createGroupCardHTML(g, false)).join('')}</div></section>
                 </div>`;
+            
+            const reviewsQuery = query(collection(db, `groups/${group.id}/reviews`), orderBy('timestamp', 'desc'));
+            onSnapshot(reviewsQuery, (snapshot) => {
+                const reviews = snapshot.docs.map(doc => doc.data());
+                const reviewsContainer = document.getElementById('reviews-container');
+                const avgRatingEl = document.getElementById('avg-rating');
+                if (reviewsContainer) {
+                    if (reviews.length > 0) {
+                        const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+                        const avgRating = (totalRating / reviews.length).toFixed(1);
+                        avgRatingEl.innerHTML = `<span class="text-primary">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5 - Math.round(avgRating))}</span><span class="ml-2 text-white">${avgRating} de 5 (${reviews.length} avaliações)</span>`;
+                        reviewsContainer.innerHTML = reviews.map(review => `
+                            <div class="bg-gray-800/50 p-4 rounded-lg">
+                                <div class="flex items-center mb-1">
+                                    <span class="text-primary">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                                </div>
+                                <p class="text-gray-300">${review.comment || '<i>Sem comentário.</i>'}</p>
+                            </div>`).join('');
+                    } else {
+                        avgRatingEl.innerHTML = `<span class="text-gray-500">Ainda não avaliado</span>`;
+                        reviewsContainer.innerHTML = '<p class="text-gray-500">Seja o primeiro a avaliar este grupo!</p>';
+                    }
+                }
+            });
+            document.getElementById('review-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const rating = e.target.rating.value;
+                const comment = e.target.comment.value.trim();
+                if (!rating) {
+                    showToast("Por favor, selecione uma avaliação de estrelas.", 'star', true);
+                    return;
+                }
+                try {
+                    await addDoc(collection(db, `groups/${group.id}/reviews`), {
+                        rating: Number(rating),
+                        comment: comment,
+                        timestamp: serverTimestamp()
+                    });
+                    showToast("Avaliação enviada com sucesso!", 'check_circle');
+                    e.target.reset();
+                } catch {
+                    showToast("Erro ao enviar avaliação.", 'error', true);
+                }
+            });
         };
         const renderAddGroupPage = (group = null) => {
             const isEditing = !!group;
+            views.add.dataset.editingId = group ? group.id : '';
             const predefinedCategories = ['Amizade', 'Animes', 'Figurinhas', 'Filmes e Séries', 'Frases', 'Games', 'Humor', 'Notícias', 'Tecnologia', 'Vendas'];
             views.add.innerHTML = `
                 <div class="max-w-2xl mx-auto bg-surface-dark/80 backdrop-blur-md p-4 sm:p-8 rounded-2xl border border-gray-700">
@@ -318,13 +382,8 @@
         const handleFormSubmit = async (e) => {
             e.preventDefault();
             const form = e.target;
-            const submitBtn = form.querySelector('#form-submit-btn');
-            const icon = form.querySelector('#form-submit-icon');
-            const text = form.querySelector('#form-submit-text');
-            submitBtn.disabled = true;
-            icon.classList.add('animate-spin');
-            icon.textContent = 'progress_activity';
-            text.textContent = 'Publicando...';
+            processingOverlay.classList.add('flex');
+            processingOverlay.classList.remove('hidden');
             
             const file = form.querySelector('#icon-upload').files[0];
             let iconUrl = form.querySelector('#existing-icon-url').value;
@@ -355,25 +414,21 @@
                     window.location.hash = '#home';
                 } catch (error) { showToast("Erro ao salvar o grupo.", 'error', true); }
                 finally {
-                    submitBtn.disabled = false;
-                    icon.classList.remove('animate-spin');
-                    icon.textContent = 'publish';
-                    text.textContent = 'Publicar Grupo';
+                    processingOverlay.classList.add('hidden');
+                    processingOverlay.classList.remove('flex');
                 }
             };
+
             if (file) {
                 const storageRef = ref(storage, `group-icons/${Date.now()}_${file.name}`);
                 const uploadTask = uploadBytesResumable(storageRef, file);
-                const progressContainer = form.querySelector('#upload-progress-container');
-                const progressBar = form.querySelector('#upload-progress-bar');
-                progressContainer.classList.remove('hidden');
-
                 uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        progressBar.style.width = progress + '%';
+                    null, 
+                    (error) => { 
+                        showToast("Erro no upload do ícone.", 'cloud_off', true); 
+                        processingOverlay.classList.add('hidden');
+                        processingOverlay.classList.remove('flex');
                     }, 
-                    (error) => { showToast("Erro no upload do ícone.", 'cloud_off', true); progressContainer.classList.add('hidden'); }, 
                     async () => {
                         iconUrl = await getDownloadURL(uploadTask.snapshot.ref);
                         await saveGroupToFirestore(iconUrl);
@@ -410,26 +465,33 @@
                 });
             });
         };
-
+        
         const handleNavigation = () => {
             const hash = window.location.hash || '#home';
             switchView(hash);
         };
         
+        // --- SOLUÇÃO DE CARREGAMENTO ---
         document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Renderiza a estrutura da Home Page e os esqueletos IMEDIATAMENTE.
             renderHomePage(); 
             renderSkeletons(views.home.querySelector('#featured-groups-container'), 3);
             renderSkeletons(views.home.querySelector('#all-groups-container'), 8);
+            
+            // 2. Mostra a página inicial (com esqueletos) IMEDIATAMENTE.
             handleNavigation(); 
-
+            
+            // 3. Verifica o status de admin em segundo plano.
             await checkAdminStatus();
             
+            // 4. Inicia o listener do Firebase para buscar os dados.
             onSnapshot(query(collection(db, "groups"), orderBy("createdAt", "desc")), (snapshot) => {
                 allGroups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                dataLoaded = true;
+                // 5. ATUALIZA a view atual com os dados reais assim que chegam.
                 handleNavigation(); 
             }, (error) => showToast("Erro de conexão.", 'signal_wifi_off', true));
             
+            // 6. Adiciona o listener para navegação futura.
             window.addEventListener('hashchange', handleNavigation);
         });
     </script>
