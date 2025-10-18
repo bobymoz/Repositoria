@@ -61,9 +61,8 @@
         .star-rating label { color: #4a4a4a; cursor: pointer; transition: color 0.2s; }
         .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #FFD700; }
         .star-rating input:checked + label { color: #FFD700; }
+        .group-icon { object-fit: cover; }
     </style>
-    <!-- Cloudinary Widget Script -->
-    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 </head>
 <body class="bg-background-dark text-text-dark font-sans">
     
@@ -128,6 +127,20 @@
         const cloudinaryCloudName = 'dhejcvvp9';
         const cloudinaryUploadPreset = 'grupos';
 
+        const categoriesWithIcons = [
+            { name: 'Todos', icon: 'apps' },
+            { name: 'Amizade', icon: 'group' },
+            { name: 'Namoro', icon: 'favorite' },
+            { name: '+18', icon: '18_up_rating' },
+            { name: 'Jogos', icon: 'sports_esports' },
+            { name: 'Dinheiro', icon: 'monetization_on' },
+            { name: 'Filmes e Séries', icon: 'movie' },
+            { name: 'Livros', icon: 'menu_book' },
+            { name: 'MODs', icon: 'extension' },
+            { name: 'Hackers', icon: 'bug_report' },
+            { name: 'Programação', icon: 'code' }
+        ];
+
         const switchView = async (hash) => {
             const [viewName, id] = hash.substring(1).split('/');
             Object.values(views).forEach(v => v.classList.add('hidden'));
@@ -149,6 +162,8 @@
                     const group = allGroups.find(g => g.id === id);
                     if (group) await renderSingleGroupPage(group);
                     else window.location.hash = '#home';
+                } else {
+                    views.detail.innerHTML = `<div class="text-center text-gray-400 py-16"><span class="material-symbols-outlined text-6xl animate-spin">progress_activity</span><p>Carregando grupo...</p></div>`;
                 }
             } else {
                 views.home.classList.remove('hidden');
@@ -162,40 +177,40 @@
             const bgColor = isError ? 'bg-red-600' : 'bg-green-600';
             toast.element.className = toast.element.className.replace(/bg-(red|green)-600/, bgColor);
             toast.element.classList.remove('opacity-0', 'translate-y-10');
-            setTimeout(() => { toast.element.classList.add('opacity-0', 'translate-y-10'); }, 4000);
+            setTimeout(() => { toast.element.classList.add('opacity-0', 'translate-y-10'); }, 5000);
         };
         
         const createSkeletonCard = () => `<div class="bg-surface-dark/50 rounded-xl p-4 space-y-3"><div class="h-40 w-full shimmer-bg rounded-md"></div><div class="h-5 w-3/4 shimmer-bg rounded-md"></div><div class="h-4 w-1/4 shimmer-bg rounded-md"></div></div>`;
         const renderSkeletons = (container, count) => { if(container) container.innerHTML = Array(count).fill(createSkeletonCard()).join(''); };
         
         const renderHomePage = () => {
-             if (views.home.hasChildNodes()) return; // Previne re-renderização desnecessária
+             if (views.home.hasChildNodes()) return;
              views.home.innerHTML = `
                 <div class="text-center mb-10">
                     <h2 class="text-4xl md:text-5xl font-extrabold mb-3 text-white">Encontre os Melhores Grupos</h2>
                     <p class="text-lg text-gray-300 max-w-2xl mx-auto">Sua busca por comunidades incríveis de WhatsApp e Telegram termina aqui.</p>
                 </div>
-                <div class="mb-10 p-4 bg-surface-dark/70 rounded-xl backdrop-blur-sm sticky top-[88px] z-10">
-                     <div class="relative">
+                <div class="mb-10 p-4 bg-surface-dark/70 rounded-xl backdrop-blur-sm md:sticky top-[88px] z-10">
+                     <div class="relative mb-4">
                           <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
                           <input type="text" id="search-input" placeholder="Pesquisar por nome, tema ou categoria..." class="w-full bg-background-dark border-gray-700 rounded-lg pl-12 pr-4 py-3 text-white focus:ring-primary focus:border-primary">
                      </div>
-                     <div id="category-filters-container" class="flex flex-wrap gap-2 justify-center pt-4"></div>
+                     <div id="category-filters-container" class="flex flex-wrap gap-2 justify-center"></div>
                 </div>
                 <div id="search-feedback" class="text-center text-gray-400 hidden my-4"><span class="material-symbols-outlined animate-spin">progress_activity</span><p>Buscando...</p></div>
-                <section id="featured-groups" class="mb-12"><h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-white"><span class="material-symbols-outlined text-primary">hotel_class</span>Destaques do Editor</h3><div id="featured-groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></section>
-                <section id="all-groups"><h3 class="text-2xl font-bold mb-6 text-white">Novos Grupos na Comunidade</h3><div id="all-groups-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></section>
-                <div id="no-results" class="text-center text-gray-400 text-lg hidden py-16"><span class="material-symbols-outlined text-6xl text-gray-600 mb-4">search_off</span><p>Nenhum grupo encontrado.<br>Tente uma busca ou filtro diferente.</p></div>`;
+                <div id="empty-state" class="text-center text-gray-400 py-16 hidden"><span class="material-symbols-outlined text-8xl text-gray-600">group_add</span><h3 class="text-2xl font-bold mt-4">Nenhum Grupo Encontrado</h3><p class="mt-2 mb-6">Seja o primeiro a compartilhar uma comunidade incrível!</p><a href="#add-group" class="nav-link inline-flex items-center gap-2 bg-primary text-black font-bold py-3 px-6 rounded-lg hover:bg-primary-dark transition-all duration-300">Adicionar o Primeiro Grupo</a></div>
+                <section id="groups-content">
+                    <section id="featured-groups" class="mb-12"><h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-white"><span class="material-symbols-outlined text-primary">hotel_class</span>Destaques do Editor</h3><div id="featured-groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></section>
+                    <section id="all-groups"><h3 class="text-2xl font-bold mb-6 text-white">Novos Grupos na Comunidade</h3><div id="all-groups-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></section>
+                </section>`;
             document.getElementById('search-input').addEventListener('input', (e) => {
                 const query = e.target.value.trim();
                 const feedback = document.getElementById('search-feedback');
-                const featuredContainer = document.getElementById('featured-groups-container');
-                const allContainer = document.getElementById('all-groups-container');
                 clearTimeout(searchDebounceTimeout);
                 if (query) {
                     feedback.classList.remove('hidden');
-                    renderSkeletons(featuredContainer, 3);
-                    renderSkeletons(allContainer, 8);
+                    renderSkeletons(document.getElementById('featured-groups-container'), 3);
+                    renderSkeletons(document.getElementById('all-groups-container'), 8);
                 } else {
                     feedback.classList.add('hidden');
                 }
@@ -208,35 +223,47 @@
         };
 
         const createGroupCardHTML = (group, isFeatured) => {
-            const platformIcon = group.platform === 'WhatsApp' ? `<i class="fa-brands fa-whatsapp text-xl text-green-500"></i>` : `<i class="fa-brands fa-telegram text-xl text-cyan-400"></i>`;
             const adminHTML = isAdmin ? `<div class="absolute top-2 right-2 flex gap-2">${adminControls(group.id)}</div>` : '';
             const cardLink = `#group/${group.id}`;
-            if (isFeatured) {
-                return `<div class="relative bg-surface-dark border-2 border-primary rounded-xl overflow-hidden shadow-gold transition-transform duration-300 hover:-translate-y-2 flex flex-col">
-                    <a href="${cardLink}" class="nav-link block h-48"><img src="${group.iconUrl || 'https://placehold.co/600x400/1A1A1A/FFD700?text=Grupo'}" alt="Ícone do grupo ${group.title}" class="h-full w-full object-cover"></a>
-                    <div class="p-5 flex-grow flex flex-col">
-                        <div class="flex justify-between items-start mb-2"><h4 class="text-lg font-bold text-white mb-1 flex-1 pr-2"><a href="${cardLink}" class="nav-link hover:underline">${group.title}</a></h4><span class="text-xs font-medium bg-primary/20 text-primary px-2 py-1 rounded-full whitespace-nowrap">${group.category}</span></div>
-                        <p class="text-sm text-gray-400 mb-4 flex-grow">${group.description}</p>
-                        <div class="mt-auto pt-4 border-t border-gray-800 flex items-center justify-between"><a href="${cardLink}" class="nav-link text-sm font-semibold text-primary hover:underline">Ver detalhes</a><a href="${group.link}" target="_blank" rel="noopener noreferrer" class="text-sm font-bold bg-primary text-black px-4 py-2 rounded-lg hover:bg-primary-dark transition-opacity flex items-center gap-2">${platformIcon} Entrar</a></div>
-                    </div>${adminHTML}</div>`;
-            }
-            return `<div class="relative bg-surface-dark border border-gray-800 rounded-xl overflow-hidden transition-all hover:shadow-lg hover:border-gray-700 hover:-translate-y-1 flex flex-col">
-                <a href="${cardLink}" class="nav-link block h-40"><img src="${group.iconUrl || 'https://placehold.co/400x300/1A1A1A/CCCCCC?text=Grupo'}" alt="Ícone do grupo ${group.title}" class="h-full w-full object-cover"></a>
-                <div class="p-4 flex-grow flex flex-col"><h4 class="font-bold text-md text-white mb-2 truncate"><a href="${cardLink}" class="nav-link hover:underline">${group.title}</a></h4><span class="text-xs font-medium bg-gray-800 text-gray-400 px-2 py-1 rounded-full mb-3 self-start">${group.category}</span><div class="mt-auto pt-3 border-t border-gray-800 flex items-center justify-between"><a href="${cardLink}" class="nav-link text-sm font-semibold text-primary hover:underline">Ver mais</a><a href="${group.link}" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-gray-300 hover:text-white flex items-center gap-2">${platformIcon} Entrar</a></div></div>
-                ${adminHTML}</div>`;
+            const cardClasses = "nav-link relative bg-surface-dark rounded-xl overflow-hidden transition-all duration-300 hover:shadow-gold hover:-translate-y-2 flex flex-col group";
+            const featuredClasses = "border-2 border-primary shadow-lg";
+            const regularClasses = "border border-gray-800 hover:border-primary/50";
+
+            const platformIcon = group.platform === 'WhatsApp' ? 
+                `<i class="fa-brands fa-whatsapp absolute top-2 right-2 text-lg bg-green-500 text-white p-1.5 rounded-full"></i>` : 
+                `<i class="fa-brands fa-telegram absolute top-2 right-2 text-lg bg-cyan-500 text-white p-1.5 rounded-full"></i>`;
+            
+            const featuredIcon = isFeatured ? `<span class="material-symbols-outlined absolute top-2 left-2 text-primary text-2xl">star</span>` : '';
+
+            return `
+                <a href="${cardLink}" class="${cardClasses} ${isFeatured ? featuredClasses : regularClasses}">
+                    <div class="h-40 w-full bg-black flex items-center justify-center overflow-hidden relative">
+                        <img src="${group.iconUrl || 'https://placehold.co/400x300/1A1A1A/CCCCCC?text=Grupo'}" alt="Ícone do grupo ${group.title}" class="h-full w-full group-icon transition-transform duration-300 group-hover:scale-110">
+                        ${platformIcon}
+                        ${featuredIcon}
+                    </div>
+                    <div class="p-4 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-md text-white flex-1 pr-2 truncate">${group.title}</h4>
+                            <span class="text-xs font-medium bg-gray-800 text-gray-400 px-2 py-1 rounded-full whitespace-nowrap">${group.category}</span>
+                        </div>
+                        <p class="text-sm text-gray-400 flex-grow mb-3">${group.description}</p>
+                        <p class="text-sm font-semibold text-primary/80 mt-auto pt-2 border-t border-gray-800">Ver mais...</p>
+                    </div>
+                    ${adminHTML}
+                </a>`;
         };
 
         const renderSingleGroupPage = async (group) => {
-            const recommended = allGroups.filter(g => g.id !== group.id && g.category === group.category).slice(0, 4);
-            if (recommended.length < 4) {
-                recommended.push(...allGroups.filter(g => g.id !== group.id && !recommended.find(rec => rec.id === g.id)).slice(0, 4 - recommended.length));
-            }
+            const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4);
             views.detail.innerHTML = `
                 <div class="max-w-4xl mx-auto">
                     <a href="#home" class="nav-link inline-flex items-center gap-2 text-primary hover:underline mb-6"><span class="material-symbols-outlined">arrow_back</span>Voltar para a lista</a>
                     <div class="bg-surface-dark rounded-xl shadow-lg overflow-hidden ${group.featured ? 'border-2 border-primary shadow-gold' : 'border border-gray-800'}">
                         <div class="p-6 sm:p-8"><div class="flex flex-col sm:flex-row gap-6">
-                            <img src="${group.iconUrl || 'https://placehold.co/400x400/1A1A1A/FFD700?text=Icon'}" alt="Ícone do grupo ${group.title}" class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-xl border-2 border-gray-700 flex-shrink-0 mx-auto sm:mx-0">
+                            <div class="w-24 h-24 sm:w-32 sm:h-32 bg-black rounded-xl border-2 border-gray-700 flex-shrink-0 mx-auto sm:mx-0 flex items-center justify-center overflow-hidden">
+                                <img src="${group.iconUrl || 'https://placehold.co/400x400/1A1A1A/FFD700?text=Icon'}" alt="Ícone do grupo ${group.title}" class="h-full w-full group-icon">
+                            </div>
                             <div class="flex-grow text-center sm:text-left">
                                 ${group.featured ? `<div class="flex items-center justify-center sm:justify-start gap-2 text-primary font-bold mb-2"><span class="material-symbols-outlined">hotel_class</span><span>DESTAQUE</span></div>` : ''}
                                 <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4 mb-2"><h2 class="text-3xl sm:text-4xl font-extrabold text-white">${group.title}</h2><span class="text-sm font-medium bg-primary/20 text-primary px-3 py-1 rounded-full self-center sm:self-start">${group.category}</span></div>
@@ -264,7 +291,7 @@
                             <button type="submit" class="bg-primary text-black font-bold py-2 px-5 rounded-lg hover:bg-primary-dark transition-colors">Enviar Avaliação</button>
                         </form>
                     </section>
-                    <section class="mt-16"><h3 class="text-3xl font-bold mb-8 text-white text-center">Recomendados</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">${recommended.map(g => createGroupCardHTML(g, false)).join('')}</div></section>
+                    ${recommended.length > 0 ? `<section class="mt-16"><h3 class="text-3xl font-bold mb-8 text-white text-center">Recomendados</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">${recommended.map(g => createGroupCardHTML(g, true)).join('')}</div></section>` : ''}
                 </div>`;
             
             const reviewsRef = ref(db, `groups/${group.id}/reviews`);
@@ -318,7 +345,7 @@
         const renderAddGroupPage = (group = null) => {
             const isEditing = !!group;
             views.add.dataset.editingId = group ? group.id : '';
-            const predefinedCategories = ['Amizade', 'Animes', 'Figurinhas', 'Filmes e Séries', 'Frases', 'Games', 'Humor', 'Notícias', 'Tecnologia', 'Vendas'];
+            const categoryOptions = categoriesWithIcons.filter(c => c.name !== 'Todos').map(c => `<option value="${c.name}">`).join('');
             views.add.innerHTML = `
                 <div class="max-w-2xl mx-auto bg-surface-dark/80 backdrop-blur-md p-4 sm:p-8 rounded-2xl border border-gray-700">
                     <div class="flex items-center justify-between mb-6"><h2 class="text-2xl sm:text-3xl font-bold text-white">${isEditing ? 'Editar Grupo' : 'Adicionar Novo Grupo'}</h2><a href="#home" class="nav-link text-gray-400 hover:text-white"><span class="material-symbols-outlined">close</span></a></div>
@@ -333,7 +360,7 @@
                         <div><label for="title" class="block text-sm font-medium text-gray-300 mb-2">Título do Grupo</label><input type="text" id="title" value="${group?.title || ''}" required class="w-full bg-background-dark border-gray-700 rounded-lg focus:ring-primary focus:border-primary"></div>
                         <div><label for="description" class="block text-sm font-medium text-gray-300 mb-2">Descrição Curta</label><textarea id="description" rows="3" required class="w-full bg-background-dark border-gray-700 rounded-lg focus:ring-primary focus:border-primary">${group?.description || ''}</textarea></div>
                         <div><label for="link" class="block text-sm font-medium text-gray-300 mb-2">Link de Convite</label><input type="url" id="link" value="${group?.link || ''}" required class="w-full bg-background-dark border-gray-700 rounded-lg focus:ring-primary focus:border-primary"></div>
-                        <div><label for="category" class="block text-sm font-medium text-gray-300 mb-2">Categoria</label><input type="text" id="category" value="${group?.category || ''}" list="category-list" required placeholder="Digite ou escolha uma categoria" class="w-full bg-background-dark border-gray-700 rounded-lg focus:ring-primary focus:border-primary"><datalist id="category-list">${predefinedCategories.map(c => `<option value="${c}">`).join('')}</datalist></div>
+                        <div><label for="category" class="block text-sm font-medium text-gray-300 mb-2">Categoria</label><input type="text" id="category" value="${group?.category || ''}" list="category-list" required placeholder="Digite ou escolha uma categoria" class="w-full bg-background-dark border-gray-700 rounded-lg focus:ring-primary focus:border-primary"><datalist id="category-list">${categoryOptions}</datalist></div>
                         ${isAdmin ? `<div class="space-y-4 pt-4 border-t border-gray-700"><div class="flex items-center"><input id="featured" type="checkbox" ${group?.featured ? 'checked' : ''} class="h-4 w-4 rounded border-gray-600 bg-gray-800 text-primary focus:ring-primary"><label for="featured" class="ml-2 block text-sm text-gray-200">Marcar como Destaque</label></div><div><label for="longDescription" class="block text-sm font-medium text-gray-300 mb-1">Descrição Longa (Destaques)</label><textarea id="longDescription" rows="5" class="w-full bg-background-dark border-gray-700 rounded-lg focus:ring-primary focus:border-primary">${group?.longDescription || ''}</textarea></div></div>` : ''}
                         <div class="pt-2"><button type="submit" id="form-submit-btn" class="w-full flex items-center justify-center gap-2 bg-primary text-black font-bold py-3 px-6 rounded-lg hover:bg-primary-dark transition-transform hover:scale-105 text-lg disabled:opacity-50 disabled:cursor-wait">Publicar Grupo</button></div>
                     </form>
@@ -362,7 +389,20 @@
 
         const filterAndRenderGroups = () => {
             const homeView = views.home;
-            if(!homeView.querySelector('#all-groups-container')) return;
+            if (!homeView.isConnected) return;
+            
+            const groupsContent = homeView.querySelector('#groups-content');
+            const emptyState = homeView.querySelector('#empty-state');
+            
+            if (allGroups.length === 0) {
+                if(groupsContent) groupsContent.classList.add('hidden');
+                if(emptyState) emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            if(groupsContent) groupsContent.classList.remove('hidden');
+            if(emptyState) emptyState.classList.add('hidden');
+            
             const searchLower = currentFilter.search.toLowerCase();
             const filtered = allGroups.filter(g => {
                 const inCategory = currentFilter.category === 'Todos' || (g.category || '').toLowerCase() === currentFilter.category.toLowerCase();
@@ -370,24 +410,36 @@
                     (g.title || '').toLowerCase().includes(searchLower) || 
                     (g.description || '').toLowerCase().includes(searchLower) || 
                     (g.category || '').toLowerCase().includes(searchLower);
-                return inCategory && inSearch;
+                return inSearch && inCategory;
             });
+
             const featuredContainer = homeView.querySelector('#featured-groups-container');
             const allContainer = homeView.querySelector('#all-groups-container');
+            
+            const featuredGroups = filtered.filter(g => g.featured);
+            if(featuredContainer) featuredContainer.innerHTML = featuredGroups.length > 0 ? featuredGroups.map(g => createGroupCardHTML(g, true)).join('') : '<p class="text-gray-500 col-span-full">Nenhum grupo em destaque para este filtro.</p>';
+            
+            const otherGroups = filtered.filter(g => !g.featured);
+            if(allContainer) allContainer.innerHTML = otherGroups.map(g => createGroupCardHTML(g, false)).join('');
+
             const noResults = homeView.querySelector('#no-results');
-            featuredContainer.innerHTML = filtered.filter(g => g.featured).map(g => createGroupCardHTML(g, true)).join('') || '<p class="text-gray-500 col-span-full">Nenhum grupo em destaque para este filtro.</p>';
-            allContainer.innerHTML = filtered.filter(g => !g.featured).map(g => createGroupCardHTML(g, false)).join('') || '';
-            noResults.classList.toggle('hidden', filtered.length > 0);
+            if(noResults) noResults.classList.toggle('hidden', filtered.length > 0);
+            
             if (isAdmin) addAdminEventListeners();
         };
 
         const renderCategoryFilters = () => {
              const container = views.home.querySelector('#category-filters-container');
              if(!container) return;
-             const categories = ['Todos', ...new Set(allGroups.map(g => g.category).filter(Boolean).sort())];
-             container.innerHTML = categories.map(cat => `<button data-category="${cat}" class="category-btn text-sm font-semibold px-4 py-2 rounded-full transition-colors duration-300 ${cat === currentFilter.category ? 'bg-primary text-black' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}">${cat}</button>`).join('');
+             container.innerHTML = categoriesWithIcons.map(cat => {
+                const isActive = cat.name === currentFilter.category;
+                return `<button data-category="${cat.name}" class="category-btn flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full transition-colors duration-300 ${isActive ? 'bg-primary text-black' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}">
+                            <span class="material-symbols-outlined text-base">${cat.icon}</span>
+                            <span>${cat.name}</span>
+                        </button>`;
+             }).join('');
              container.querySelectorAll('.category-btn').forEach(btn => btn.addEventListener('click', (e) => {
-                 currentFilter.category = e.target.dataset.category;
+                 currentFilter.category = e.currentTarget.dataset.category;
                  filterAndRenderGroups();
                  renderCategoryFilters();
              }));
@@ -395,8 +447,9 @@
 
         const handleFormSubmit = async (e) => {
             e.preventDefault();
-            processingOverlay.classList.add('flex');
-            processingOverlay.classList.remove('hidden');
+            
+            window.location.hash = '#home';
+            showToast("Seu grupo está sendo processado...", 'progress_activity');
 
             const saveGroupToFirestore = async (finalIconUrl) => {
                 const form = e.target;
@@ -409,6 +462,8 @@
                     link: form.querySelector('#link').value,
                     category: form.querySelector('#category').value,
                     createdAt: serverTimestamp(),
+                    featured: false,
+                    longDescription: ''
                 };
                 if (isAdmin) {
                     groupData.featured = form.querySelector('#featured')?.checked || false;
@@ -421,15 +476,12 @@
                         showToast("Grupo atualizado com sucesso!", 'update');
                     } else {
                         await push(ref(db, 'groups'), groupData);
-                        showToast("Grupo enviado para a comunidade!", 'check_circle');
+                        showToast("Grupo publicado com sucesso!", 'check_circle');
                     }
-                    window.location.hash = '#home';
                 } catch (error) {
                     console.error("Firebase write error:", error);
-                    showToast("Erro ao salvar o grupo. Verifique as regras do Firebase.", 'error', true);
+                    showToast("Erro ao salvar. Verifique as regras do Firebase.", 'error', true);
                 } finally {
-                    processingOverlay.classList.add('hidden');
-                    processingOverlay.classList.remove('flex');
                     selectedFile = null;
                 }
             };
@@ -450,8 +502,6 @@
                 } catch (error) {
                     console.error("Cloudinary upload error:", error);
                     showToast("Erro no upload do ícone. Tente novamente.", 'cloud_off', true);
-                    processingOverlay.classList.add('hidden');
-                    processingOverlay.classList.remove('flex');
                 }
 
             } else {
@@ -510,8 +560,13 @@
             onValue(ref(db, 'groups'), (snapshot) => {
                 const data = snapshot.val();
                 allGroups = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                allGroups.sort((a, b) => b.createdAt - a.createdAt);
-                handleNavigation(); 
+                allGroups.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                
+                const currentHash = window.location.hash || '#home';
+                if (currentHash.startsWith('#home') || currentHash === '') {
+                    filterAndRenderGroups();
+                    renderCategoryFilters();
+                }
             }, (error) => {
                 console.error("Firebase read error:", error);
                 showToast("Erro de conexão.", 'signal_wifi_off', true);
