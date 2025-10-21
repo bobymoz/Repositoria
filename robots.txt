@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+Allow: /*.css
+Allow: /*.js
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.webp
+
+
