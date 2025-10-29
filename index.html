@@ -248,17 +248,20 @@
         };
 
         const createGroupCardHTML = (group, isFeatured) => {
-            const adminHTML = isAdmin ? `<div class="absolute top-2 right-2 flex gap-2">${adminControls(group.id)}</div>` : '';
+            // CORREÇÃO 2: Adicionado z-20 aos botões de admin
+            const adminHTML = isAdmin ? `<div class="absolute top-2 right-2 flex gap-2 z-20">${adminControls(group.id)}</div>` : '';
             const cardLink = `#group/${group.id}`;
             const cardClasses = "nav-link relative bg-surface-dark rounded-xl overflow-hidden transition-all duration-300 hover:shadow-gold hover:-translate-y-2 flex flex-col group";
             const featuredClasses = "border-2 border-primary shadow-lg";
             const regularClasses = "border border-gray-800 hover:border-primary/50";
 
+            // CORREÇÃO 2: Ícone da plataforma movido para top-2 left-2
             const platformIcon = group.platform === 'WhatsApp' ? 
-                `<i class="fa-brands fa-whatsapp absolute top-2 right-2 text-lg bg-green-500 text-white p-1.5 rounded-full"></i>` : 
-                `<i class="fa-brands fa-telegram absolute top-2 right-2 text-lg bg-cyan-500 text-white p-1.5 rounded-full"></i>`;
+                `<i class="fa-brands fa-whatsapp absolute top-2 left-2 text-lg bg-green-500 text-white p-1.5 rounded-full"></i>` : 
+                `<i class="fa-brands fa-telegram absolute top-2 left-2 text-lg bg-cyan-500 text-white p-1.5 rounded-full"></i>`;
             
-            const featuredIcon = isFeatured ? `<span class="material-symbols-outlined absolute top-2 left-2 text-primary text-2xl">star</span>` : '';
+            // CORREÇÃO 2: Ícone de destaque movido para bottom-2 left-2
+            const featuredIcon = isFeatured ? `<span class="material-symbols-outlined absolute bottom-2 left-2 text-primary text-2xl">star</span>` : '';
 
             return `
                 <a href="${cardLink}" class="${cardClasses} ${isFeatured ? featuredClasses : regularClasses}">
@@ -281,6 +284,11 @@
 
         const renderSingleGroupPage = async (group) => {
             const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4);
+
+            // CORREÇÃO 3: Informações de compartilhamento
+            const shareUrl = encodeURIComponent(window.location.origin + window.location.pathname + '#group/' + group.id);
+            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`);
+
             views.detail.innerHTML = `
                 <div class="max-w-4xl mx-auto">
                     <a href="#home" class="nav-link inline-flex items-center gap-2 text-primary hover:underline mb-6"><span class="material-symbols-outlined">arrow_back</span>Voltar para a lista</a>
@@ -297,7 +305,31 @@
                         </div>
                         ${group.featured && group.longDescription ? `<div class="prose prose-invert max-w-none text-gray-300 mt-6 pt-6 border-t border-gray-700">${group.longDescription.replace(/\n/g, '<br>')}</div>` : ''}
                         </div>
-                        <div class="px-6 sm:px-8 py-6 bg-gray-900/50"><a href="${group.link}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-black font-bold py-3 px-6 rounded-lg hover:bg-primary-dark transition-transform hover:scale-105 text-lg"><span class="material-symbols-outlined">login</span>Entrar no Grupo Agora</a></div>
+                        <div class="px-6 sm:px-8 py-6 bg-gray-900/50">
+                            <a href="${group.link}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-black font-bold py-3 px-6 rounded-lg hover:bg-primary-dark transition-transform hover:scale-105 text-lg">
+                                <span class="material-symbols-outlined">login</span>Entrar no Grupo Agora
+                            </a>
+                            
+                            <!-- CORREÇÃO 3: Botões de Compartilhamento -->
+                            <div class="mt-8 text-center">
+                                <p class="text-gray-300 font-medium mb-4">Compartilhar este grupo:</p>
+                                <div class="flex justify-center items-center gap-5">
+                                    <a href="https://api.whatsapp.com/send?text=${shareTitle}%20${shareUrl}" target="_blank" rel="noopener" class="text-gray-400 hover:text-white transition-colors" aria-label="Compartilhar no WhatsApp">
+                                        <i class="fa-brands fa-whatsapp text-3xl hover:text-green-500"></i>
+                                    </a>
+                                    <a href="https://t.me/share/url?url=${shareUrl}&text=${shareTitle}" target="_blank" rel="noopener" class="text-gray-400 hover:text-white transition-colors" aria-label="Compartilhar no Telegram">
+                                        <i class="fa-brands fa-telegram text-3xl hover:text-cyan-500"></i>
+                                    </a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" rel="noopener" class="text-gray-400 hover:text-white transition-colors" aria-label="Compartilhar no Facebook">
+                                        <i class="fa-brands fa-facebook text-3xl hover:text-blue-600"></i>
+                                    </a>
+                                    <button id="copy-link-btn" class="text-gray-400 hover:text-white transition-colors" aria-label="Copiar Link">
+                                        <span class="material-symbols-outlined text-3xl hover:text-primary">share</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- FIM: Botões de Compartilhamento -->
+                        </div>
                     </div>
                     <section class="mt-16 bg-surface-dark/80 p-6 rounded-xl">
                         <h3 class="text-2xl font-bold mb-4 text-white">Avaliações da Comunidade</h3>
@@ -319,6 +351,38 @@
                     ${recommended.length > 0 ? `<section class="mt-16"><h3 class="text-3xl font-bold mb-8 text-white text-center">Recomendados</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">${recommended.map(g => createGroupCardHTML(g, true)).join('')}</div></section>` : ''}
                 </div>`;
             
+            // CORREÇÃO 3: Adicionar listener para o botão de copiar link
+            const copyBtn = document.getElementById('copy-link-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    const shareUrlToCopy = window.location.origin + window.location.pathname + '#group/' + group.id;
+                    const textArea = document.createElement('textarea');
+                    textArea.value = shareUrlToCopy;
+                    textArea.style.position = 'fixed'; // Prevenir scroll
+                    textArea.style.top = '0';
+                    textArea.style.left = '0';
+                    textArea.style.opacity = '0';
+                    
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            showToast("Link copiado para a área de transferência!", 'content_copy');
+                        } else {
+                            showToast("Não foi possível copiar o link.", 'error', true);
+                        }
+                    } catch (err) {
+                        console.error('Fallback: Oops, unable to copy', err);
+                        showToast("Erro ao copiar o link.", 'error', true);
+                    }
+                    
+                    document.body.removeChild(textArea);
+                });
+            }
+
             const reviewsRef = ref(db, `groups/${group.id}/reviews`);
             onValue(reviewsRef, (snapshot) => {
                 const reviewsData = snapshot.val();
@@ -587,6 +651,11 @@
                 allGroups = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                 allGroups.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 
+                // CORREÇÃO 1: Sempre chame handleNavigation() quando os dados mudarem.
+                // Isso corrige o bug de links diretos que não carregavam.
+                handleNavigation();
+
+                // Atualize os filtros também se estivermos na página inicial
                 const currentHash = window.location.hash || '#home';
                 if (currentHash.startsWith('#home') || currentHash === '') {
                     filterAndRenderGroups();
@@ -598,9 +667,12 @@
             });
             
             window.addEventListener('hashchange', handleNavigation);
+            // handleNavigation() é chamado aqui, mas será chamado novamente pelo onValue
+            // o que é bom, pois garante que a visualização correta seja renderizada com os dados.
             handleNavigation();
         });
     </script>
 </body>
 </html>
+
 
