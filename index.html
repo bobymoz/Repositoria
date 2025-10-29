@@ -252,7 +252,7 @@
             // CORREÇÃO: Mover adminHTML para fora do 'a' tag para corrigir o clique
             // Aumentado z-index para z-30 para garantir que fique no topo.
             const adminHTML = isAdmin ? `<div class="absolute top-2 right-2 flex gap-2 z-30">${adminControls(group.id)}</div>` : '';
-            const cardLink = `group/${group.id}`;
+            const cardLink = `*group/${group.id}`;
             
             // O container do card (era 'cardClasses')
             const containerClasses = "relative bg-surface-dark rounded-xl overflow-hidden transition-all duration-300 hover:shadow-gold hover:-translate-y-2 flex flex-col group";
