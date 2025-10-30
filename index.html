@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -18,8 +17,7 @@
 
 
 
-<!-- Favicons -->
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -31,22 +29,18 @@
 
 
 
-    <!-- SEO Meta Tags Otimizadas para JINOCA -->
     <meta name="description" content="Encontre e participe dos melhores grupos de WhatsApp e Telegram no JINOCA! O maior diretório de links para grupos de amizade, animes, jogos, vendas e muito mais. Adicione seu grupo grátis!">
     <meta name="keywords" content="jinoca, grupos whatsapp, grupos telegram, link de grupos, grupos de zap, diretório de grupos, grupos de amizade, grupos de jogos, grupos de animes, links de grupos 2025, participar de grupos">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://jinoca.com/" />
 
-    <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     
-    <!-- Font Awesome for Platform Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -99,8 +93,8 @@
     <div id="app-container">
         <header class="sticky top-0 z-30 bg-surface-dark/50 backdrop-blur-lg border-b border-gray-800">
             <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20">
-                <a href="#home" class="nav-link flex items-center gap-3"><img src="https://i.imghippo.com/files/RNE8811Hk.jpg" alt="Logo JINOCA" class="h-12 w-12 object-cover rounded-full border-2 border-primary"><h1 class="text-2xl font-bold text-white hidden sm:block">JINOCA</h1></a>
-                <a href="#add-group" class="nav-link flex items-center gap-2 bg-primary text-black font-bold py-2 px-5 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:scale-105"><span class="material-symbols-outlined">add_circle</span><span class="hidden sm:inline">Adicionar Grupo</span></a>
+                <a href="/" class="nav-link flex items-center gap-3"><img src="https://i.imghippo.com/files/RNE8811Hk.jpg" alt="Logo JINOCA" class="h-12 w-12 object-cover rounded-full border-2 border-primary"><h1 class="text-2xl font-bold text-white hidden sm:block">JINOCA</h1></a>
+                <a href="/add-group" class="nav-link flex items-center gap-2 bg-primary text-black font-bold py-2 px-5 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:scale-105"><span class="material-symbols-outlined">add_circle</span><span class="hidden sm:inline">Adicionar Grupo</span></a>
             </nav>
         </header>
 
@@ -133,7 +127,6 @@
         <p class="text-white text-xl mt-4 font-bold">Publicando seu grupo...</p>
     </div>
 
-    <!-- Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getDatabase, ref, onValue, push, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
@@ -167,8 +160,12 @@
             { name: 'Programação', icon: 'code' }
         ];
 
-        const switchView = async (hash) => {
-            const [viewName, id] = hash.substring(1).split('/');
+        // MODIFICADO: 'hash' -> 'path'. Lógica de parse ajustada para pathname.
+        const switchView = async (path) => {
+            const parts = path.substring(1).split('/'); // Remove o '/' inicial e divide
+            const viewName = parts[0] || 'home'; // Se for '/' (vazio), considera 'home'
+            const id = parts[1];
+            
             Object.values(views).forEach(v => v.classList.add('hidden'));
             
             const isAddPage = viewName === 'add-group' || viewName === 'edit-group';
@@ -186,12 +183,17 @@
                 views.detail.classList.remove('hidden');
                 if (allGroups.length > 0) {
                     const group = allGroups.find(g => g.id === id);
-                    if (group) await renderSingleGroupPage(group);
-                    else window.location.hash = '#home';
+                    if (group) {
+                        await renderSingleGroupPage(group);
+                    } else {
+                        // MODIFICADO: Redireciona para home usando History API
+                        window.history.pushState(null, '', '/');
+                        handleNavigation();
+                    }
                 } else {
                     views.detail.innerHTML = `<div class="text-center text-gray-400 py-16"><span class="material-symbols-outlined text-6xl animate-spin">progress_activity</span><p>Carregando grupo...</p></div>`;
                 }
-            } else {
+            } else { // 'home' ou qualquer outra rota não reconhecida
                 views.home.classList.remove('hidden');
             }
             window.scrollTo(0, 0);
@@ -224,7 +226,7 @@
                      <div id="category-filters-container" class="flex flex-wrap gap-2 justify-center"></div>
                 </div>
                 <div id="search-feedback" class="text-center text-gray-400 hidden my-4"><span class="material-symbols-outlined animate-spin">progress_activity</span><p>Buscando...</p></div>
-                <div id="empty-state" class="text-center text-gray-400 py-16 hidden"><span class="material-symbols-outlined text-8xl text-gray-600">group_add</span><h3 class="text-2xl font-bold mt-4">Nenhum Grupo Encontrado</h3><p class="mt-2 mb-6">Seja o primeiro a compartilhar uma comunidade incrível!</p><a href="#add-group" class="nav-link inline-flex items-center gap-2 bg-primary text-black font-bold py-3 px-6 rounded-lg hover:bg-primary-dark transition-all duration-300">Adicionar o Primeiro Grupo</a></div>
+                <div id="empty-state" class="text-center text-gray-400 py-16 hidden"><span class="material-symbols-outlined text-8xl text-gray-600">group_add</span><h3 class="text-2xl font-bold mt-4">Nenhum Grupo Encontrado</h3><p class="mt-2 mb-6">Seja o primeiro a compartilhar uma comunidade incrível!</p><a href="/add-group" class="nav-link inline-flex items-center gap-2 bg-primary text-black font-bold py-3 px-6 rounded-lg hover:bg-primary-dark transition-all duration-300">Adicionar o Primeiro Grupo</a></div>
                 <section id="groups-content">
                     <section id="featured-groups" class="mb-12"><h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-white"><span class="material-symbols-outlined text-primary">hotel_class</span>Destaques do Editor</h3><div id="featured-groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></section>
                     <section id="all-groups"><h3 class="text-2xl font-bold mb-6 text-white">Novos Grupos na Comunidade</h3><div id="all-groups-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></section>
@@ -249,20 +251,17 @@
         };
 
         const createGroupCardHTML = (group, isFeatured) => {
-            // CORREÇÃO: Mover adminHTML para fora do 'a' tag para corrigir o clique
-            // Aumentado z-index para z-30 para garantir que fique no topo.
             const adminHTML = isAdmin ? `<div class="absolute top-2 right-2 flex gap-2 z-30">${adminControls(group.id)}</div>` : '';
-            const cardLink = `#group/${group.id}`;
+            // MODIFICADO: cardLink agora é um pathname
+            const cardLink = `/group/${group.id}`;
             
-            // O container do card (era 'cardClasses')
             const containerClasses = "relative bg-surface-dark rounded-xl overflow-hidden transition-all duration-300 hover:shadow-gold hover:-translate-y-2 flex flex-col group";
-            // O link agora está dentro do container
+            // MODIFICADO: Adicionado 'nav-link' para ser interceptado
             const linkClasses = "nav-link flex flex-col flex-grow"; 
             
             const featuredClasses = "border-2 border-primary shadow-lg";
             const regularClasses = "border border-gray-800 hover:border-primary/50";
 
-            // Adicionado z-20 para garantir que os ícones fiquem sobre a imagem e abaixo dos controles admin
             const platformIcon = group.platform === 'WhatsApp' ? 
                 `<i class="fa-brands fa-whatsapp absolute top-2 left-2 text-lg bg-green-500 text-white p-1.5 rounded-full z-20"></i>` : 
                 `<i class="fa-brands fa-telegram absolute top-2 left-2 text-lg bg-cyan-500 text-white p-1.5 rounded-full z-20"></i>`;
@@ -294,12 +293,13 @@
         const renderSingleGroupPage = async (group) => {
             const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4);
 
-            const shareUrl = encodeURIComponent(window.location.origin + window.location.pathname + '#group/' + group.id);
+            // MODIFICADO: A URL de compartilhamento é a URL atual.
+            const shareUrl = encodeURIComponent(window.location.href);
             const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`);
 
             views.detail.innerHTML = `
                 <div class="max-w-4xl mx-auto">
-                    <a href="#home" class="nav-link inline-flex items-center gap-2 text-primary hover:underline mb-6"><span class="material-symbols-outlined">arrow_back</span>Voltar para a lista</a>
+                    <a href="/" class="nav-link inline-flex items-center gap-2 text-primary hover:underline mb-6"><span class="material-symbols-outlined">arrow_back</span>Voltar para a lista</a>
                     <div class="bg-surface-dark rounded-xl shadow-lg overflow-hidden ${group.featured ? 'border-2 border-primary shadow-gold' : 'border border-gray-800'}">
                         <div class="p-6 sm:p-8"><div class="flex flex-col sm:flex-row gap-6">
                             <div class="w-24 h-24 sm:w-32 sm:h-32 bg-black rounded-xl border-2 border-gray-700 flex-shrink-0 mx-auto sm:mx-0 flex items-center justify-center overflow-hidden">
@@ -360,7 +360,8 @@
             const copyBtn = document.getElementById('copy-link-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
-                    const shareUrlToCopy = window.location.origin + window.location.pathname + '#group/' + group.id;
+                    // MODIFICADO: A URL a ser copiada é a URL atual.
+                    const shareUrlToCopy = window.location.href;
                     const textArea = document.createElement('textarea');
                     textArea.value = shareUrlToCopy;
                     textArea.style.position = 'fixed'; 
@@ -442,7 +443,7 @@
             const categoryOptions = categoriesWithIcons.filter(c => c.name !== 'Todos').map(c => `<option value="${c.name}">`).join('');
             views.add.innerHTML = `
                 <div class="max-w-2xl mx-auto bg-surface-dark/80 backdrop-blur-md p-4 sm:p-8 rounded-2xl border border-gray-700">
-                    <div class="flex items-center justify-between mb-6"><h2 class="text-2xl sm:text-3xl font-bold text-white">${isEditing ? 'Editar Grupo' : 'Adicionar Novo Grupo'}</h2><a href="#home" class="nav-link text-gray-400 hover:text-white"><span class="material-symbols-outlined">close</span></a></div>
+                    <div class="flex items-center justify-between mb-6"><h2 class="text-2xl sm:text-3xl font-bold text-white">${isEditing ? 'Editar Grupo' : 'Adicionar Novo Grupo'}</h2><a href="/" class="nav-link text-gray-400 hover:text-white"><span class="material-symbols-outlined">close</span></a></div>
                     <form id="group-form" class="space-y-6">
                         <input type="hidden" id="group-id" value="${group?.id || ''}">
                         <input type="hidden" id="existing-icon-url" value="${group?.iconUrl || ''}">
@@ -542,7 +543,9 @@
         const handleFormSubmit = async (e) => {
             e.preventDefault();
             
-            window.location.hash = '#home';
+            // MODIFICADO: Navega para home usando History API e chama o roteador
+            window.history.pushState(null, '', '/');
+            handleNavigation();
             showToast("Seu grupo está sendo processado...", 'progress_activity');
 
             const saveGroupToFirestore = async (finalIconUrl) => {
@@ -621,14 +624,14 @@
             }
         };
 
-        const adminControls = (id) => `<a href="#edit-group/${id}" class="nav-link edit-btn bg-blue-500/80 hover:bg-blue-500 text-white p-2 rounded-full" data-id="${id}"><span class="material-symbols-outlined text-base">edit</span></a><button class="delete-btn bg-red-500/80 hover:bg-red-500 text-white p-2 rounded-full" data-id="${id}"><span class="material-symbols-outlined text-base">delete</span></button>`;
+        // MODIFICADO: href agora é um pathname
+        const adminControls = (id) => `<a href="/edit-group/${id}" class="nav-link edit-btn bg-blue-500/80 hover:bg-blue-500 text-white p-2 rounded-full" data-id="${id}"><span class="material-symbols-outlined text-base">edit</span></a><button class="delete-btn bg-red-500/80 hover:bg-red-500 text-white p-2 rounded-full" data-id="${id}"><span class="material-symbols-outlined text-base">delete</span></button>`;
         
         const addAdminEventListeners = () => {
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 if (btn.dataset.listener) return;
                 btn.dataset.listener = true;
                 btn.addEventListener('click', async (e) => {
-                    // Prevenir que o clique 'borbulhe' para o link do card
                     e.preventDefault(); 
                     e.stopPropagation();
                     
@@ -642,21 +645,15 @@
                 });
             });
             
-            // Adicionar stopPropagation para os links de edição também
-            document.querySelectorAll('.edit-btn').forEach(btn => {
-                if (btn.dataset.listener) return;
-                btn.dataset.listener = true;
-                btn.addEventListener('click', (e) => {
-                    // Prevenir que o clique 'borbulhe' para o link do card
-                    e.stopPropagation();
-                    // Não adicionar e.preventDefault(), pois queremos que a navegação #hash funcione
-                });
-            });
+            // MODIFICADO: Não precisa mais de stopPropagation no edit-btn
+            // O interceptador de 'nav-link' global cuidará disso.
+            // Apenas removemos o código antigo.
         };
         
+        // MODIFICADO: Lê 'window.location.pathname' em vez de 'hash'
         const handleNavigation = () => {
-            const hash = window.location.hash || '#home';
-            switchView(hash);
+            const path = window.location.pathname; // Ex: "/", "/group/123", "/add-group"
+            switchView(path);
         };
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -671,11 +668,11 @@
                 allGroups = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                 allGroups.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 
-                // Correção de link direto: Chamar handleNavigation DEPOIS que os dados são carregados
                 handleNavigation();
 
-                const currentHash = window.location.hash || '#home';
-                if (currentHash.startsWith('#home') || currentHash === '') {
+                // MODIFICADO: Verifica o pathname para renderizar filtros
+                const currentPath = window.location.pathname;
+                if (currentPath === '/') {
                     filterAndRenderGroups();
                     renderCategoryFilters();
                 }
@@ -684,13 +681,28 @@
                 showToast("Erro de conexão.", 'signal_wifi_off', true);
             });
             
-            window.addEventListener('hashchange', handleNavigation);
-            handleNavigation();
+            // MODIFICADO: Ouve 'popstate' (botões voltar/avançar) em vez de 'hashchange'
+            window.addEventListener('popstate', handleNavigation);
+            
+            // ADICIONADO: Interceptador de clique global para 'nav-link'
+            document.addEventListener('click', (e) => {
+                const link = e.target.closest('a.nav-link');
+                
+                // Ignora cliques com Ctrl/Meta (para abrir em nova aba) ou links externos
+                if (link && link.target === '' && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault(); // Impede a recarga da página
+                    const newPath = link.getAttribute('href');
+                    
+                    // Só atualiza se o caminho for diferente
+                    if (window.location.pathname !== newPath) {
+                        window.history.pushState(null, '', newPath); // Atualiza a URL
+                        handleNavigation(); // Aciona o roteador manualmente
+                    }
+                }
+            });
+
+            handleNavigation(); // Lida com a carga inicial da página
         });
     </script>
 </body>
 </html>
-
-
-
-
