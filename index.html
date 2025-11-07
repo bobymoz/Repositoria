@@ -153,10 +153,6 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         </footer>
     </div>
     
-    <button id="scroll-to-top" title="Voltar ao topo" class="fixed bottom-6 right-6 z-50 bg-primary text-black p-3 rounded-full shadow-lg opacity-0 translate-y-10 transition-all duration-300 hidden">
-        <span class="material-symbols-outlined">arrow_upward</span>
-    </button>
-    
     <div id="toast" class="fixed bottom-5 right-5 z-[100] flex items-center gap-3 text-white py-3 px-5 rounded-lg shadow-2xl opacity-0 translate-y-10 transition-all duration-300">
         <span id="toast-icon" class="material-symbols-outlined"></span><p id="toast-message"></p>
     </div>
@@ -196,6 +192,9 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         
         // --- INÍCIO DAS FUNÇÕES AUXILIARES DE SEO (PARA A GAMBIARRA) ---
         
+        /**
+         * Atualiza ou cria uma tag <meta> no <head>.
+         */
         const updateMetaTag = (selector, attribute, value) => {
             let element = document.querySelector(selector);
             if (!element) {
@@ -210,6 +209,9 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             element.setAttribute(attribute, value);
         };
 
+        /**
+         * Atualiza ou cria uma tag <link> no <head>.
+         */
         const updateLinkTag = (rel, href) => {
             let element = document.querySelector(`link[rel="${rel}"]`);
             if (!element) {
@@ -240,7 +242,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
 
  const switchView = async (path) => {
             const parts = path.substring(1).split('/');
-            const viewName = parts[0] || 'home'; [cite: 43-44]
+            const viewName = parts[0] || 'home'; // [cite: 43-44]
             const id = parts[1];
             Object.values(views).forEach(v => v.classList.add('hidden'));
             
@@ -248,9 +250,10 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             const isDetailPage = viewName === 'group';
             backgrounds.main.style.opacity = !isAddPage && !isDetailPage ? '1' : '0';
             backgrounds.add.style.opacity = isAddPage ? '1' : '0';
-            backgrounds.detail.style.opacity = isDetailPage ? '1' : '0';
+            backgrounds.detail.style.opacity = isDetailPage ? '1' : '0'; // [cite: 46]
             
             // --- INÍCIO DO RESET DE SEO (PARA A GAMBIARRA) ---
+            // Reseta as tags para o padrão da "home" se não estiver na página de detalhes
             if (viewName === 'home') {
                 document.title = originalTitle;
                 updateMetaTag('meta[name="description"]', 'content', originalDescription);
@@ -267,7 +270,8 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             // --- FIM DO RESET DE SEO ---
 
             if (isAddPage) {
-                renderAddGroupPage(viewName === 'edit-group' ? allGroups.find(g => g.id === id) : null);
+                const groupToEdit = viewName === 'edit-group' ? allGroups.find(g => g.id === id) : null;
+                renderAddGroupPage(groupToEdit);
                 views.add.classList.remove('hidden');
             } else if (isDetailPage && id) {
                 views.detail.classList.remove('hidden');
@@ -283,19 +287,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                     views.detail.innerHTML = `<div class="text-center text-gray-400 py-16"><span class="material-symbols-outlined text-6xl animate-spin">progress_activity</span><p>Carregando grupo...</p></div>`;
                 }
             } else { // 'home' ou qualquer outra rota não reconhecida
-                // --- INÍCIO DA CORREÇÃO 1 e 2: (Tela Branca e Voltar para Home) ---
-                // 1. Garante que o HTML da home exista
-                if (!views.home.hasChildNodes()) {
-                    renderHomePage();
-                }
-                // 2. Mostra a home
                 views.home.classList.remove('hidden');
-                
-                // 3. Renderiza o conteúdo (grupos e filtros)
-                // As próprias funções lidam se allGroups estiver vazio
-                filterAndRenderGroups();
-                renderCategoryFilters();
-                // --- FIM DA CORREÇÃO ---
             }
             window.scrollTo(0, 0);
         };
@@ -310,10 +302,8 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         
         const createSkeletonCard = () => `<div class="bg-surface-dark/50 rounded-xl p-4 space-y-3"><div class="h-40 w-full shimmer-bg rounded-md"></div><div class="h-5 w-3/4 shimmer-bg rounded-md"></div><div class="h-4 w-1/4 shimmer-bg rounded-md"></div></div>`;
  const renderSkeletons = (container, count) => { if(container) container.innerHTML = Array(count).fill(createSkeletonCard()).join(''); };
- 
- // --- MODIFICADO: A função agora só desenha o HTML ---
  const renderHomePage = () => {
-             if (views.home.hasChildNodes()) return; // 
+             if (views.home.hasChildNodes()) return;
  views.home.innerHTML = `
                 <div class="text-center mb-10">
                     <h2 class="text-4xl md:text-5xl font-extrabold mb-3 text-white">Encontre os Melhores Grupos</h2>
@@ -336,8 +326,6 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  id="featured-groups" class="mb-12"><h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-white"><span class="material-symbols-outlined text-primary">hotel_class</span>Destaques do Editor</h3><div id="featured-groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></section>
                     <section id="all-groups"><h3 class="text-2xl font-bold mb-6 text-white">Novos Grupos na Comunidade</h3><div id="all-groups-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></section>
                 </section>`;
-                
-             // O event listener é anexado apenas uma vez, quando o HTML é criado
  document.getElementById('search-input').addEventListener('input', (e) => {
                 const query = e.target.value.trim();
                 const feedback = document.getElementById('search-feedback');
@@ -398,9 +386,10 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
    
                  </div>`;
         };
- const renderSingleGroupPage = async (group) => {
+ const renderSingleGroupPage = async (group) => { // [cite: 81]
 
-            // --- INÍCIO DA GAMBIARRA DE SEO ---
+            // --- INÍCIO DA GAMBIARRA DE SEO (APLICADA AQUI) ---
+            // Atualiza os metadados da página dinamicamente
             
             const baseUrl = window.location.origin || 'https://jinoca.com';
             const groupUrl = `${baseUrl}/group/${group.id}`;
@@ -408,14 +397,23 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             const groupDescription = (group.description || 'Participe deste grupo no JINOCA.').substring(0, 160);
             const groupTitle = `${group.title} - JINOCA`;
 
+            // 1. Título da Página
             document.title = groupTitle;
+
+            // 2. Meta Descrição
             updateMetaTag('meta[name="description"]', 'content', groupDescription);
+
+            // 3. Link Canônico
             updateLinkTag('canonical', groupUrl);
+
+            // 4. Open Graph (para Redes Sociais e Imagens)
             updateMetaTag('meta[property="og:title"]', 'content', groupTitle);
             updateMetaTag('meta[property="og:url"]', 'content', groupUrl);
             updateMetaTag('meta[property="og:description"]', 'content', groupDescription);
             updateMetaTag('meta[property="og:image"]', 'content', groupImage);
             updateMetaTag('meta[property="og:type"]', 'content', 'website');
+            
+            // 5. Twitter Cards
             updateMetaTag('meta[name="twitter:card"]', 'content', 'summary_large_image');
             updateMetaTag('meta[name="twitter:title"]', 'content', groupTitle);
             updateMetaTag('meta[name="twitter:description"]', 'content', groupDescription);
@@ -425,8 +423,8 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
 
 
             const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4);
-            const shareUrl = encodeURIComponent(window.location.href);
-            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`);
+            const shareUrl = encodeURIComponent(window.location.href); // [cite: 82]
+            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`); // [cite: 83]
 
             views.detail.innerHTML = `
                 <div class="max-w-4xl mx-auto">
@@ -504,7 +502,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  const copyBtn = document.getElementById('copy-link-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
-                    const shareUrlToCopy = window.location.href;
+                    const shareUrlToCopy = window.location.href; // [cite: 104]
                     const textArea = document.createElement('textarea');
                     textArea.value = shareUrlToCopy;
                     textArea.style.position = 'fixed'; 
@@ -636,28 +634,26 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  };
 
         const filterAndRenderGroups = () => {
-            // Esta função agora pode ser chamada a qualquer momento.
-            // Se views.home não tiver sido renderizado, os querySelectors falharão
-            // graciosamente (retornarão null) e nada acontecerá.
             const homeView = views.home;
+ if (!homeView.isConnected) return;
             
             const groupsContent = homeView.querySelector('#groups-content');
             const emptyState = homeView.querySelector('#empty-state');
-            
-            if (allGroups.length === 0) {
+ if (allGroups.length === 0) {
                 if(groupsContent) groupsContent.classList.add('hidden');
-                if(emptyState) emptyState.classList.remove('hidden');
+ if(emptyState) emptyState.classList.remove('hidden');
                 return;
             }
             
             if(groupsContent) groupsContent.classList.remove('hidden');
-            if(emptyState) emptyState.classList.add('hidden');
+ if(emptyState) emptyState.classList.add('hidden');
             
             const searchLower = currentFilter.search.toLowerCase();
             const filtered = allGroups.filter(g => {
                 const inCategory = currentFilter.category === 'Todos' || (g.category || '').toLowerCase() === currentFilter.category.toLowerCase();
                 const inSearch = !searchLower || 
                     (g.title || '').toLowerCase().includes(searchLower) || 
+                 
          (g.description || '').toLowerCase().includes(searchLower) || 
                     (g.category || '').toLowerCase().includes(searchLower);
                 return inSearch && inCategory;
@@ -678,7 +674,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
 
         const renderCategoryFilters = () => {
              const container = views.home.querySelector('#category-filters-container');
- if(!container) return; // Se a home não foi renderizada, saia
+ if(!container) return;
              container.innerHTML = categoriesWithIcons.map(cat => {
                 const isActive = cat.name === currentFilter.category;
                 return `<button data-category="${cat.name}" class="category-btn flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full transition-colors duration-300 ${isActive ? 'bg-primary text-black' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}">
@@ -804,10 +800,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             switchView(path);
         };
  document.addEventListener('DOMContentLoaded', async () => {
-            // --- MODIFICADO: A renderHomePage() foi movida para dentro do switchView
-            // para garantir a ordem correta de execução.
-            
-            // Mostra esqueletos de carregamento
+            renderHomePage(); 
             renderSkeletons(views.home.querySelector('#featured-groups-container'), 3);
             renderSkeletons(views.home.querySelector('#all-groups-container'), 8);
             
@@ -819,9 +812,15 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                 allGroups = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                 allGroups.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 
-                // Agora que temos os dados, atualizamos a visualização atual
-                handleNavigation();
+                
+ handleNavigation();
 
+                const currentPath = window.location.pathname;
+                if (currentPath === '/') {
+                    filterAndRenderGroups();
+                  
+     renderCategoryFilters();
+                }
             }, (error) => {
                 console.error("Firebase read error:", error);
  showToast("Erro de conexão.", 'signal_wifi_off', true);
@@ -844,38 +843,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                  }
                 }
             });
-            
-            // --- INÍCIO DA LÓGICA DO BOTÃO "VOLTAR AO TOPO" ---
-            const scrollTopButton = document.getElementById('scroll-to-top');
-            
-            if (scrollTopButton) {
-                // Mostrar/Esconder botão ao rolar
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 400) {
-                        scrollTopButton.classList.remove('hidden', 'opacity-0', 'translate-y-10');
-                    } else {
-                         // Adiciona as classes de "esconder" imediatamente
-                        scrollTopButton.classList.add('opacity-0', 'translate-y-10');
-                        // Adiciona 'hidden' depois que a transição de opacidade termina
-                        setTimeout(() => {
-                           if (window.scrollY <= 400) {
-                                scrollTopButton.classList.add('hidden');
-                           }
-                        }, 300); // Duração da transição
-                    }
-                });
-
-                // Ação de clique para rolar ao topo
-                scrollTopButton.addEventListener('click', () => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-            // --- FIM DA LÓGICA DO BOTÃO "VOLTAR AO TOPO" ---
-            
-            handleNavigation(); // Lida com a carga inicial da página
+ handleNavigation(); // [cite: 199]
         });
     </script>
 </body>
