@@ -196,9 +196,6 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         
         // --- INÍCIO DAS FUNÇÕES AUXILIARES DE SEO (PARA A GAMBIARRA) ---
         
-        /**
-         * Atualiza ou cria uma tag <meta> no <head>.
-         */
         const updateMetaTag = (selector, attribute, value) => {
             let element = document.querySelector(selector);
             if (!element) {
@@ -213,9 +210,6 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             element.setAttribute(attribute, value);
         };
 
-        /**
-         * Atualiza ou cria uma tag <link> no <head>.
-         */
         const updateLinkTag = (rel, href) => {
             let element = document.querySelector(`link[rel="${rel}"]`);
             if (!element) {
@@ -254,7 +248,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             const isDetailPage = viewName === 'group';
             backgrounds.main.style.opacity = !isAddPage && !isDetailPage ? '1' : '0';
             backgrounds.add.style.opacity = isAddPage ? '1' : '0';
-            backgrounds.detail.style.opacity = isDetailPage ? '1' : '0'; [cite: 46]
+            backgrounds.detail.style.opacity = isDetailPage ? '1' : '0';
             
             // --- INÍCIO DO RESET DE SEO (PARA A GAMBIARRA) ---
             if (viewName === 'home') {
@@ -273,8 +267,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             // --- FIM DO RESET DE SEO ---
 
             if (isAddPage) {
-                const groupToEdit = viewName === 'edit-group' ? allGroups.find(g => g.id === id) : null;
-                renderAddGroupPage(groupToEdit);
+                renderAddGroupPage(viewName === 'edit-group' ? allGroups.find(g => g.id === id) : null);
                 views.add.classList.remove('hidden');
             } else if (isDetailPage && id) {
                 views.detail.classList.remove('hidden');
@@ -287,18 +280,22 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                         handleNavigation();
                     }
                 } else {
-                    views.detail.innerHTML = `<div class="text-center text-gray-400 py-16"><span class="material-symbols-outlined text-6xl animate-spin">progress_activity</span><p>Carregando grupo...</p></div>`; [cite: 52]
+                    views.detail.innerHTML = `<div class="text-center text-gray-400 py-16"><span class="material-symbols-outlined text-6xl animate-spin">progress_activity</span><p>Carregando grupo...</p></div>`;
                 }
             } else { // 'home' ou qualquer outra rota não reconhecida
-                views.home.classList.remove('hidden'); [cite: 53-54]
-                
-                // --- INÍCIO DA CORREÇÃO 1: Recarregar grupos na home ---
-                // Garante que os grupos/filtros sejam renderizados ao navegar para a home
-                if (allGroups.length > 0) {
-                    filterAndRenderGroups();
-                    renderCategoryFilters();
+                // --- INÍCIO DA CORREÇÃO 1 e 2: (Tela Branca e Voltar para Home) ---
+                // 1. Garante que o HTML da home exista
+                if (!views.home.hasChildNodes()) {
+                    renderHomePage();
                 }
-                // --- FIM DA CORREÇÃO 1 ---
+                // 2. Mostra a home
+                views.home.classList.remove('hidden');
+                
+                // 3. Renderiza o conteúdo (grupos e filtros)
+                // As próprias funções lidam se allGroups estiver vazio
+                filterAndRenderGroups();
+                renderCategoryFilters();
+                // --- FIM DA CORREÇÃO ---
             }
             window.scrollTo(0, 0);
         };
@@ -313,8 +310,10 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         
         const createSkeletonCard = () => `<div class="bg-surface-dark/50 rounded-xl p-4 space-y-3"><div class="h-40 w-full shimmer-bg rounded-md"></div><div class="h-5 w-3/4 shimmer-bg rounded-md"></div><div class="h-4 w-1/4 shimmer-bg rounded-md"></div></div>`;
  const renderSkeletons = (container, count) => { if(container) container.innerHTML = Array(count).fill(createSkeletonCard()).join(''); };
+ 
+ // --- MODIFICADO: A função agora só desenha o HTML ---
  const renderHomePage = () => {
-             if (views.home.hasChildNodes()) return;
+             if (views.home.hasChildNodes()) return; // 
  views.home.innerHTML = `
                 <div class="text-center mb-10">
                     <h2 class="text-4xl md:text-5xl font-extrabold mb-3 text-white">Encontre os Melhores Grupos</h2>
@@ -337,6 +336,8 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  id="featured-groups" class="mb-12"><h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-white"><span class="material-symbols-outlined text-primary">hotel_class</span>Destaques do Editor</h3><div id="featured-groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></section>
                     <section id="all-groups"><h3 class="text-2xl font-bold mb-6 text-white">Novos Grupos na Comunidade</h3><div id="all-groups-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></section>
                 </section>`;
+                
+             // O event listener é anexado apenas uma vez, quando o HTML é criado
  document.getElementById('search-input').addEventListener('input', (e) => {
                 const query = e.target.value.trim();
                 const feedback = document.getElementById('search-feedback');
@@ -423,9 +424,9 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             // --- FIM DA GAMBIARRA DE SEO ---
 
 
-            const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4); [cite: 81]
-            const shareUrl = encodeURIComponent(window.location.href); [cite: 82]
-            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`); [cite: 83]
+            const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4);
+            const shareUrl = encodeURIComponent(window.location.href);
+            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`);
 
             views.detail.innerHTML = `
                 <div class="max-w-4xl mx-auto">
@@ -503,7 +504,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  const copyBtn = document.getElementById('copy-link-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
-                    const shareUrlToCopy = window.location.href; [cite: 104]
+                    const shareUrlToCopy = window.location.href;
                     const textArea = document.createElement('textarea');
                     textArea.value = shareUrlToCopy;
                     textArea.style.position = 'fixed'; 
@@ -635,19 +636,22 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  };
 
         const filterAndRenderGroups = () => {
+            // Esta função agora pode ser chamada a qualquer momento.
+            // Se views.home não tiver sido renderizado, os querySelectors falharão
+            // graciosamente (retornarão null) e nada acontecerá.
             const homeView = views.home;
- if (!homeView.isConnected) return;
             
             const groupsContent = homeView.querySelector('#groups-content');
             const emptyState = homeView.querySelector('#empty-state');
- if (allGroups.length === 0) {
+            
+            if (allGroups.length === 0) {
                 if(groupsContent) groupsContent.classList.add('hidden');
- if(emptyState) emptyState.classList.remove('hidden');
+                if(emptyState) emptyState.classList.remove('hidden');
                 return;
             }
             
             if(groupsContent) groupsContent.classList.remove('hidden');
- if(emptyState) emptyState.classList.add('hidden');
+            if(emptyState) emptyState.classList.add('hidden');
             
             const searchLower = currentFilter.search.toLowerCase();
             const filtered = allGroups.filter(g => {
@@ -674,7 +678,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
 
         const renderCategoryFilters = () => {
              const container = views.home.querySelector('#category-filters-container');
- if(!container) return;
+ if(!container) return; // Se a home não foi renderizada, saia
              container.innerHTML = categoriesWithIcons.map(cat => {
                 const isActive = cat.name === currentFilter.category;
                 return `<button data-category="${cat.name}" class="category-btn flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full transition-colors duration-300 ${isActive ? 'bg-primary text-black' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}">
@@ -796,11 +800,14 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         };
         
         const handleNavigation = () => {
-            const path = window.location.pathname; [cite: 188]
+            const path = window.location.pathname;
             switchView(path);
         };
- document.addEventListener('DOMContentLoaded', async () => { [cite: 190]
-            renderHomePage(); 
+ document.addEventListener('DOMContentLoaded', async () => {
+            // --- MODIFICADO: A renderHomePage() foi movida para dentro do switchView
+            // para garantir a ordem correta de execução.
+            
+            // Mostra esqueletos de carregamento
             renderSkeletons(views.home.querySelector('#featured-groups-container'), 3);
             renderSkeletons(views.home.querySelector('#all-groups-container'), 8);
             
@@ -812,15 +819,9 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                 allGroups = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                 allGroups.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 
-                
- handleNavigation();
+                // Agora que temos os dados, atualizamos a visualização atual
+                handleNavigation();
 
-                const currentPath = window.location.pathname;
-                if (currentPath === '/') {
-                    filterAndRenderGroups();
-                  
-     renderCategoryFilters();
-                }
             }, (error) => {
                 console.error("Firebase read error:", error);
  showToast("Erro de conexão.", 'signal_wifi_off', true);
@@ -844,7 +845,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                 }
             });
             
-            // --- INÍCIO DA LÓGICA DO BOTÃO "VOLTAR AO TOPO" (Problema 3) ---
+            // --- INÍCIO DA LÓGICA DO BOTÃO "VOLTAR AO TOPO" ---
             const scrollTopButton = document.getElementById('scroll-to-top');
             
             if (scrollTopButton) {
@@ -853,13 +854,14 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                     if (window.scrollY > 400) {
                         scrollTopButton.classList.remove('hidden', 'opacity-0', 'translate-y-10');
                     } else {
+                         // Adiciona as classes de "esconder" imediatamente
                         scrollTopButton.classList.add('opacity-0', 'translate-y-10');
                         // Adiciona 'hidden' depois que a transição de opacidade termina
                         setTimeout(() => {
-                           if (window.scrollY <= 400) { // Dupla checagem
+                           if (window.scrollY <= 400) {
                                 scrollTopButton.classList.add('hidden');
                            }
-                        }, 300); // Duração da transição (0.3s)
+                        }, 300); // Duração da transição
                     }
                 });
 
