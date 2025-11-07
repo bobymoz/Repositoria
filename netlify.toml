@@ -1,4 +1,21 @@
+# Arquivo: netlify.toml (na raiz do seu projeto)
+
+[functions]
+  # 1. Diz ao Netlify onde está a pasta de funções
+  directory = "netlify/functions/"
+
 [[redirects]]
+  # 2. A ROTA DO SITEMAP (TEM QUE VIR PRIMEIRO)
+  # Quando alguém acessar /sitemap.xml...
+  from = "/sitemap.xml"
+  # ...execute esta função.
+  to = "/.netlify/functions/sitemap"
+  status = 200
+
+[[redirects]]
+  # 3. SUA ROTA ANTIGA (TEM QUE VIR POR ÚLTIMO)
+  # Para qualquer outra rota...
   from = "/*"
+  # ...carregue o index.html (para o seu SPA funcionar).
   to = "/index.html"
   status = 200
