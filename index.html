@@ -153,6 +153,10 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         </footer>
     </div>
     
+    <button id="scroll-to-top" title="Voltar ao topo" class="fixed bottom-6 right-6 z-50 bg-primary text-black p-3 rounded-full shadow-lg opacity-0 translate-y-10 transition-all duration-300 hidden">
+        <span class="material-symbols-outlined">arrow_upward</span>
+    </button>
+    
     <div id="toast" class="fixed bottom-5 right-5 z-[100] flex items-center gap-3 text-white py-3 px-5 rounded-lg shadow-2xl opacity-0 translate-y-10 transition-all duration-300">
         <span id="toast-icon" class="material-symbols-outlined"></span><p id="toast-message"></p>
     </div>
@@ -242,7 +246,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
 
  const switchView = async (path) => {
             const parts = path.substring(1).split('/');
-            const viewName = parts[0] || 'home'; // [cite: 43-44]
+            const viewName = parts[0] || 'home'; [cite: 43-44]
             const id = parts[1];
             Object.values(views).forEach(v => v.classList.add('hidden'));
             
@@ -250,10 +254,9 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             const isDetailPage = viewName === 'group';
             backgrounds.main.style.opacity = !isAddPage && !isDetailPage ? '1' : '0';
             backgrounds.add.style.opacity = isAddPage ? '1' : '0';
-            backgrounds.detail.style.opacity = isDetailPage ? '1' : '0'; // [cite: 46]
+            backgrounds.detail.style.opacity = isDetailPage ? '1' : '0'; [cite: 46]
             
             // --- INÍCIO DO RESET DE SEO (PARA A GAMBIARRA) ---
-            // Reseta as tags para o padrão da "home" se não estiver na página de detalhes
             if (viewName === 'home') {
                 document.title = originalTitle;
                 updateMetaTag('meta[name="description"]', 'content', originalDescription);
@@ -284,10 +287,18 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                         handleNavigation();
                     }
                 } else {
-                    views.detail.innerHTML = `<div class="text-center text-gray-400 py-16"><span class="material-symbols-outlined text-6xl animate-spin">progress_activity</span><p>Carregando grupo...</p></div>`;
+                    views.detail.innerHTML = `<div class="text-center text-gray-400 py-16"><span class="material-symbols-outlined text-6xl animate-spin">progress_activity</span><p>Carregando grupo...</p></div>`; [cite: 52]
                 }
             } else { // 'home' ou qualquer outra rota não reconhecida
-                views.home.classList.remove('hidden');
+                views.home.classList.remove('hidden'); [cite: 53-54]
+                
+                // --- INÍCIO DA CORREÇÃO 1: Recarregar grupos na home ---
+                // Garante que os grupos/filtros sejam renderizados ao navegar para a home
+                if (allGroups.length > 0) {
+                    filterAndRenderGroups();
+                    renderCategoryFilters();
+                }
+                // --- FIM DA CORREÇÃO 1 ---
             }
             window.scrollTo(0, 0);
         };
@@ -386,10 +397,9 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
    
                  </div>`;
         };
- const renderSingleGroupPage = async (group) => { // [cite: 81]
+ const renderSingleGroupPage = async (group) => {
 
-            // --- INÍCIO DA GAMBIARRA DE SEO (APLICADA AQUI) ---
-            // Atualiza os metadados da página dinamicamente
+            // --- INÍCIO DA GAMBIARRA DE SEO ---
             
             const baseUrl = window.location.origin || 'https://jinoca.com';
             const groupUrl = `${baseUrl}/group/${group.id}`;
@@ -397,23 +407,14 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             const groupDescription = (group.description || 'Participe deste grupo no JINOCA.').substring(0, 160);
             const groupTitle = `${group.title} - JINOCA`;
 
-            // 1. Título da Página
             document.title = groupTitle;
-
-            // 2. Meta Descrição
             updateMetaTag('meta[name="description"]', 'content', groupDescription);
-
-            // 3. Link Canônico
             updateLinkTag('canonical', groupUrl);
-
-            // 4. Open Graph (para Redes Sociais e Imagens)
             updateMetaTag('meta[property="og:title"]', 'content', groupTitle);
             updateMetaTag('meta[property="og:url"]', 'content', groupUrl);
             updateMetaTag('meta[property="og:description"]', 'content', groupDescription);
             updateMetaTag('meta[property="og:image"]', 'content', groupImage);
             updateMetaTag('meta[property="og:type"]', 'content', 'website');
-            
-            // 5. Twitter Cards
             updateMetaTag('meta[name="twitter:card"]', 'content', 'summary_large_image');
             updateMetaTag('meta[name="twitter:title"]', 'content', groupTitle);
             updateMetaTag('meta[name="twitter:description"]', 'content', groupDescription);
@@ -422,9 +423,9 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             // --- FIM DA GAMBIARRA DE SEO ---
 
 
-            const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4);
-            const shareUrl = encodeURIComponent(window.location.href); // [cite: 82]
-            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`); // [cite: 83]
+            const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4); [cite: 81]
+            const shareUrl = encodeURIComponent(window.location.href); [cite: 82]
+            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`); [cite: 83]
 
             views.detail.innerHTML = `
                 <div class="max-w-4xl mx-auto">
@@ -502,7 +503,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  const copyBtn = document.getElementById('copy-link-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
-                    const shareUrlToCopy = window.location.href; // [cite: 104]
+                    const shareUrlToCopy = window.location.href; [cite: 104]
                     const textArea = document.createElement('textarea');
                     textArea.value = shareUrlToCopy;
                     textArea.style.position = 'fixed'; 
@@ -653,7 +654,6 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                 const inCategory = currentFilter.category === 'Todos' || (g.category || '').toLowerCase() === currentFilter.category.toLowerCase();
                 const inSearch = !searchLower || 
                     (g.title || '').toLowerCase().includes(searchLower) || 
-                 
          (g.description || '').toLowerCase().includes(searchLower) || 
                     (g.category || '').toLowerCase().includes(searchLower);
                 return inSearch && inCategory;
@@ -796,10 +796,10 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         };
         
         const handleNavigation = () => {
-            const path = window.location.pathname;
+            const path = window.location.pathname; [cite: 188]
             switchView(path);
         };
- document.addEventListener('DOMContentLoaded', async () => {
+ document.addEventListener('DOMContentLoaded', async () => { [cite: 190]
             renderHomePage(); 
             renderSkeletons(views.home.querySelector('#featured-groups-container'), 3);
             renderSkeletons(views.home.querySelector('#all-groups-container'), 8);
@@ -843,7 +843,37 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                  }
                 }
             });
- handleNavigation(); // [cite: 199]
+            
+            // --- INÍCIO DA LÓGICA DO BOTÃO "VOLTAR AO TOPO" (Problema 3) ---
+            const scrollTopButton = document.getElementById('scroll-to-top');
+            
+            if (scrollTopButton) {
+                // Mostrar/Esconder botão ao rolar
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 400) {
+                        scrollTopButton.classList.remove('hidden', 'opacity-0', 'translate-y-10');
+                    } else {
+                        scrollTopButton.classList.add('opacity-0', 'translate-y-10');
+                        // Adiciona 'hidden' depois que a transição de opacidade termina
+                        setTimeout(() => {
+                           if (window.scrollY <= 400) { // Dupla checagem
+                                scrollTopButton.classList.add('hidden');
+                           }
+                        }, 300); // Duração da transição (0.3s)
+                    }
+                });
+
+                // Ação de clique para rolar ao topo
+                scrollTopButton.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+            // --- FIM DA LÓGICA DO BOTÃO "VOLTAR AO TOPO" ---
+            
+            handleNavigation(); // Lida com a carga inicial da página
         });
     </script>
 </body>
