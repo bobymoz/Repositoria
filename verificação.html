@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verificação de Humano - JINOCA</title>
+    
+    <!-- Meta tags para o robô não indexar esta página -->
+    <meta name="robots" content="noindex, nofollow">
+
+   
+    <link rel="icon" href="https://i.imghippo.com/files/RNE8811Hk.jpg" type="image/jpeg">
+
+    <!-- Fontes do Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFD700', // Dourado
+                        'primary-dark': '#E6C200',
+                        'background-dark': '#0D0D0D',
+                        'surface-dark': '#1A1A1A',
+                        'text-dark': '#EAEAEA',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    boxShadow: {
+                         'gold': '0 0 25px 5px rgba(255, 215, 0, 0.4)',
+                    },
+                    keyframes: {
+                        fadeIn: { 
+                            '0%': { opacity: '0', transform: 'translateY(20px)' }, 
+                            '100%': { opacity: '1', transform: 'translateY(0)' } 
+                        },
+                        pulse: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '.5' },
+                        },
+                        spin: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' }
+                        }
+                    },
+                    animation: { 
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin': 'spin 1s linear infinite'
+                    }
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale;
+            /* Fundo com gradiente sutil */
+            background-color: #0D0D0D;
+            background-image: radial-gradient(circle at 1px 1px, rgba(255, 215, 0, 0.1), #0D0D0D 2px);
+            background-size: 20px 20px;
+        }
+        /* Caixa do Captcha Customizada */
+        .captcha-box {
+            background-color: #333;
+            border: 2px solid #555;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 28px;
+            height: 28px;
+            position: relative;
+        }
+        .captcha-box.checked {
+            background-color: #FFD700;
+            border-color: #FFD700;
+        }
+        .captcha-box.checked::after {
+            content: '✔';
+            color: #0D0D0D;
+            font-size: 18px;
+            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Spinner para o estado de loading */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            border-top-color: #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-text-dark font-sans flex items-center justify-center min-h-screen p-4">
+
+    <!-- Card de Verificação -->
+    <div id="captcha-card" class="w-full max-w-md bg-surface-dark rounded-2xl border border-gray-800 shadow-xl overflow-hidden animate-fade-in">
+        
+        <!-- Header com Logo -->
+        <div class="p-6 border-b border-gray-700 flex items-center justify-center gap-3 bg-gray-900/50">
+            <img src="https://i.imghippo.com/files/RNE8811Hk.jpg" alt="Logo JINOCA" class="h-10 w-10 object-cover rounded-full border-2 border-primary">
+            <h1 class="text-xl font-bold text-white">JINOCA</h1>
+        </div>
+
+        <!-- *** MUDANÇA AQUI: p-8 mudou para p-6 sm:p-8 *** -->
+        <div class="p-6 sm:p-8 text-center flex flex-col items-center">
+            
+            <!-- *** MUDANÇA AQUI: w-40 mudou para w-32 sm:w-40 *** -->
+            <img src="https://www.imagensanimadas.com/data/media/209/gato-imagem-animada-0453.gif" border="0" alt="gato-imagem-animada-0453" class="w-32 sm:w-40 h-auto mb-6" />
+
+            <h2 class="text-2xl font-extrabold text-white mb-3">Quase lá...</h2>
+            <p id="message-text" class="text-gray-400 mb-8">Por favor, verifique que você é humano para continuar.</p>
+
+            <!-- Captcha de Um Clique -->
+            <div id="captcha-container" class="w-full p-4 bg-background-dark rounded-lg border border-gray-700 flex items-center justify-start gap-4 cursor-pointer hover:bg-gray-900/50 transition-colors">
+                
+                <!-- Caixa Interativa -->
+                <div id="captcha-box" class="captcha-box flex-shrink-0 flex items-center justify-center">
+                    <!-- Estado Inicial (Vazio) -->
+                    <div id="captcha-initial" class="flex"></div>
+                    <!-- Estado Carregando (Spinner) -->
+                    <div id="captcha-loading" class="hidden">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                
+                <label for="captcha-box" class="text-lg font-medium text-text-dark cursor-pointer">Eu não sou um robô</label>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Hora que a página carregou (para verificação anti-robô)
+        const pageLoadTime = Date.now();
+
+        const captchaContainer = document.getElementById('captcha-container');
+        const captchaBox = document.getElementById('captcha-box');
+        const initialState = document.getElementById('captcha-initial');
+        const loadingState = document.getElementById('captcha-loading');
+        const messageText = document.getElementById('message-text');
+        const captchaCard = document.getElementById('captcha-card');
+
+        let isVerifying = false;
+
+        // Adicionar o clique ao container inteiro
+        captchaContainer.addEventListener('click', () => {
+            if (isVerifying) return; // Não fazer nada se já estiver verificando
+
+            const clickTime = Date.now();
+            const timeElapsed = clickTime - pageLoadTime;
+
+            
+            // Se o clique for muito rápido (menos de 1 segundo), é um robô.
+            if (timeElapsed < 1000) {
+                isVerifying = true; // Trava o captcha
+                messageText.textContent = "Robô Detectado! Atualize a página e tente novamente.";
+                messageText.classList.remove('text-gray-400');
+                messageText.classList.add('text-red-500', 'font-bold');
+                captchaBox.classList.add('border-red-500', 'border-2');
+                return; // Para a execução
+            }
+
+            
+            isVerifying = true;
+            
+            // 1. Mudar para o estado de "Carregando"
+            initialState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+            messageText.textContent = "Verificando...";
+            messageText.classList.add('text-primary');
+            captchaContainer.classList.remove('hover:bg-gray-900/50');
+            captchaContainer.style.cursor = 'default';
+
+            
+            setTimeout(() => {
+               
+                loadingState.classList.add('hidden');
+                captchaBox.classList.add('checked');
+                messageText.textContent = "Verificado! Redirecionando...";
+
+                // Adicionar sombra dourada para "destacar"
+                captchaCard.classList.add('shadow-gold');
+
+                // 4. Redirecionar após um breve momento
+                setTimeout(() => {
+                    window.location.href = "https://jinoca.com";
+                }, 700);
+
+            }, 1500); 
+        });
+    </script>
+</body>
+</html>
