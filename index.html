@@ -138,7 +138,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-gray-400">
                 <div class="flex flex-col sm:flex-row justify-between items-center sm:text-left">
           
-                   <p>&copy; 2025 JINOCA.
+                   <p>&copy; 2024 JINOCA.
  Todos os direitos reservados.</p>
                     <div class="mt-4 sm:mt-0">
                         <p class="mb-2">Precisa de ajuda?
@@ -170,6 +170,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         const db = getDatabase(app);
 
         let isAdmin = false, allGroups = [];
+        let dataLoaded = false; // *** ADICIONADO ***
  let currentFilter = { search: '', category: 'Todos' };
         let searchDebounceTimeout;
         let selectedFile = null;
@@ -249,7 +250,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
             const isDetailPage = viewName === 'group';
             backgrounds.main.style.opacity = !isAddPage && !isDetailPage ? '1' : '0';
             backgrounds.add.style.opacity = isAddPage ? '1' : '0';
-            backgrounds.detail.style.opacity = isDetailPage ? '1' : '0'; // [cite: 46]
+            backgrounds.detail.style.opacity = isDetailPage ? '1' : '0'; //
             
             // --- INÍCIO DO RESET DE SEO (PARA A GAMBIARRA) ---
             // Reseta as tags para o padrão da "home" se não estiver na página de detalhes
@@ -274,26 +275,22 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                 views.add.classList.remove('hidden');
             } else if (isDetailPage && id) {
                 views.detail.classList.remove('hidden');
-                if (allGroups.length > 0) {
+                if (allGroups.length > 0 || dataLoaded) { // *** MODIFICADO ***
                     const group = allGroups.find(g => g.id === id);
                     if (group) {
                         await renderSingleGroupPage(group);
                     } else {
-                        // window.history.pushState(null, '', '/');
-                        // handleNavigation();
-                        window.location.hash = '/'; // *** CORRIGIDO ***
+                        window.location.hash = '/'; // *** CORRIGIDO (para hash) ***
+                        // handleNavigation(); // O hashchange listener cuida disso
                     }
                 } else {
                     views.detail.innerHTML = `<div class="text-center text-gray-400 py-16"><span class="material-symbols-outlined text-6xl animate-spin">progress_activity</span><p>Carregando grupo...</p></div>`;
                 }
             } else { // 'home' ou qualquer outra rota não reconhecida
                 views.home.classList.remove('hidden');
-                // *** INÍCIO DA CORREÇÃO ***
                 // Garante que, ao voltar para a home, os grupos sejam renderizados
-                // com os dados que já foram carregados no 'allGroups'.
                 filterAndRenderGroups();
                 renderCategoryFilters();
-                // *** FIM DA CORREÇÃO ***
             }
             window.scrollTo(0, 0);
         };
@@ -392,13 +389,13 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
    
                  </div>`;
         };
- const renderSingleGroupPage = async (group) => { // [cite: 81]
+ const renderSingleGroupPage = async (group) => { //
 
             // --- INÍCIO DA GAMBIARRA DE SEO (APLICADA AQUI) ---
             // Atualiza os metadados da página dinamicamente
             
             const baseUrl = window.location.origin || 'https://jinoca.com';
-            const groupUrl = `${baseUrl}/#/group/${group.id}`; // *** CORRIGIDO para HASH ***
+            const groupUrl = `${baseUrl}/#/group/${group.id}`; // *** CORRIGIDO (para hash) ***
             const groupImage = group.iconUrl || originalOgImage;
             const groupDescription = (group.description || 'Participe deste grupo no JINOCA.').substring(0, 160);
             const groupTitle = `${group.title} - JINOCA`;
@@ -429,8 +426,8 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
 
 
             const recommended = allGroups.filter(g => g.featured && g.id !== group.id).slice(0, 4);
-            const shareUrl = encodeURIComponent(window.location.href); // [cite: 82]
-            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`); // [cite: 83]
+            const shareUrl = encodeURIComponent(window.location.href); //
+            const shareTitle = encodeURIComponent(`Olha esse grupo: ${group.title} - JINOCA`); //
 
             views.detail.innerHTML = `
                 <div class="max-w-4xl mx-auto">
@@ -489,7 +486,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                             <h4 class="font-bold text-lg">Deixe sua avaliação:</h4>
                     
              <div class="star-rating flex flex-row-reverse justify-end">
-                                <input type="radio" id="star5" name="rating" value="5" class="hidden"/><label for="star5" classM="text-4xl">★</label>
+                                <input type="radio" id="star5" name="rating" value="5" class="hidden"/><label for="star5" class="text-4xl">★</label>
                                 <input type="radio" id="star4" name="rating" value="4" class="hidden"/><label for="star4" class="text-4xl">★</label>
           
                          <input type="radio" id="star3" name="rating" value="3" class="hidden"/><label for="star3" class="text-4xl">★</label>
@@ -508,7 +505,7 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  const copyBtn = document.getElementById('copy-link-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
-                    const shareUrlToCopy = window.location.href; // [cite: 104]
+                    const shareUrlToCopy = window.location.href; //
                     const textArea = document.createElement('textarea');
                     textArea.value = shareUrlToCopy;
                     textArea.style.position = 'fixed'; 
@@ -640,17 +637,21 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
  };
 
         const filterAndRenderGroups = () => {
+            // *** ADICIONADO ***
+            // Se os dados não foram carregados, não faz nada (deixa os skeletons)
+            if (!dataLoaded) return;
+
             const homeView = views.home;
  if (!homeView.isConnected) return;
             
             const groupsContent = homeView.querySelector('#groups-content');
             const emptyState = homeView.querySelector('#empty-state');
- if (allGroups.length === 0) {
-                // Não esconde o conteúdo se ainda estivermos esperando os dados (skeletons visíveis)
-                if (groupsContent && homeView.querySelector('#all-groups-container')?.hasChildNodes()) {
-                    groupsContent.classList.add('hidden');
-                }
-                if (emptyState) emptyState.classList.remove('hidden');
+ 
+            // *** MODIFICADO ***
+            // Só mostra o "empty state" se os dados tiverem sido carregados E não houver grupos
+            if (allGroups.length === 0 && dataLoaded) {
+                if(groupsContent) groupsContent.classList.add('hidden');
+ if(emptyState) emptyState.classList.remove('hidden');
                 return;
             }
             
@@ -701,9 +702,8 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
 
         const handleFormSubmit = async (e) => {
             e.preventDefault();
-            // window.history.pushState(null, '', '/');
-            // handleNavigation();
-            window.location.hash = '/'; // *** CORRIGIDO ***
+            window.location.hash = '/'; // *** CORRIGIDO (para hash) ***
+            // handleNavigation(); // O hashchange listener cuida disso
             showToast("Seu grupo está sendo processado...", 'progress_activity');
 
             const saveGroupToFirestore = async (finalIconUrl) => {
@@ -806,12 +806,13 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
         };
         
         const handleNavigation = () => {
-            // const path = window.location.pathname;
-            const path = window.location.hash.substring(1) || '/'; // *** CORRIGIDO ***
+            const path = window.location.hash.substring(1) || '/'; // *** CORRIGIDO (para hash) ***
             switchView(path);
         };
  document.addEventListener('DOMContentLoaded', async () => {
             renderHomePage(); 
+
+            // *** ADICIONADO: Renderiza os skeletons imediatamente ***
             renderSkeletons(views.home.querySelector('#featured-groups-container'), 3);
             renderSkeletons(views.home.querySelector('#all-groups-container'), 8);
             
@@ -823,22 +824,20 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                 allGroups = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                 allGroups.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 
+                dataLoaded = true; // *** ADICIONADO ***
+                
                 // Agora que os dados estão carregados, handleNavigation
                 // vai renderizar a view correta com os dados corretos.
                 handleNavigation();
 
-                // Esta lógica antiga foi movida para dentro do switchView
-                // const currentPath = window.location.pathname;
-                // if (currentPath === '/') {
-                //    filterAndRenderGroups();
-                //    renderCategoryFilters();
-                // }
             }, (error) => {
                 console.error("Firebase read error:", error);
  showToast("Erro de conexão.", 'signal_wifi_off', true);
+                dataLoaded = true; // Mesmo em erro, paramos de "carregar"
+                handleNavigation(); // Mostra o "empty state"
             });
             
-            window.addEventListener('popstate', handleNavigation);
+            // window.addEventListener('popstate', handleNavigation); // Removido
             window.addEventListener('hashchange', handleNavigation); // *** ADICIONADO ***
             document.addEventListener('click', (e) => {
                 const link = e.target.closest('a.nav-link');
@@ -848,16 +847,13 @@ links,link de grupos WhatsApp e telegram, grupos telegram, link de grupos, grupo
                     e.preventDefault(); 
                     const newPath = link.getAttribute('href');
                     
-                    // *** INÍCIO DO BLOCO CORRIGIDO ***
                     const currentHashPath = window.location.hash.substring(1) || '/';
                     if (currentHashPath !== newPath) {
                         window.location.hash = newPath; 
-                        // handleNavigation(); // Não é mais necessário, o 'hashchange' listener cuida disso
                     }
-                    // *** FIM DO BLOCO CORRIGIDO ***
                 }
             });
- handleNavigation(); // [cite: 199]
+ handleNavigation(); //
         });
     </script>
 </body>
