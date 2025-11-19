@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Painel Jinoca Mailer</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --text: #f8fafc;
+            --text-gray: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 16px; }
+        
+        /* Utilitários */
+        .hidden { display: none !important; }
+        .w-full { width: 100%; }
+        .btn {
+            background: var(--primary); color: white; border: none; padding: 14px; 
+            border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center; gap: 8px; font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+        .btn:active { opacity: 0.8; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-gray); }
+        .btn-danger { background: #ef4444; }
+        
+        input, textarea {
+            width: 100%; background: var(--bg); border: 1px solid var(--border);
+            color: white; padding: 12px; border-radius: 8px; font-size: 1rem; margin-bottom: 15px;
+        }
+        input:focus, textarea:focus { border-color: var(--primary); outline: none; }
+        label { display: block; color: var(--text-gray); margin-bottom: 6px; font-size: 0.9rem; }
+
+        /* Layout Login */
+        .auth-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 20px; }
+        .auth-box { background: var(--surface); padding: 30px; border-radius: 16px; border: 1px solid var(--border); }
+        .brand { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* Layout Dashboard */
+        .dash-header {
+            padding: 15px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;
+        }
+        .menu-toggle { display: none; } /* Desktop default */
+        
+        .dash-body { display: flex; min-height: calc(100vh - 65px); }
+        
+        .sidebar {
+            width: 250px; background: var(--surface); border-right: 1px solid var(--border);
+            padding: 20px; display: flex; flex-direction: column; gap: 5px;
+        }
+        
+        .menu-item {
+            padding: 12px; border-radius: 8px; color: var(--text-gray); cursor: pointer;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .menu-item.active { background: rgba(79, 70, 229, 0.1); color: var(--primary); font-weight: 600; }
+        
+        .content { flex: 1; padding: 20px; overflow-y: auto; }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        
+        /* API Box Style */
+        .api-box {
+            background: #000; padding: 15px; border-radius: 8px; border: 1px solid var(--border);
+            font-family: monospace; word-break: break-all; color: #22c55e; margin-bottom: 10px;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute; right: 10px; top: 10px; background: var(--surface); 
+            padding: 5px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed; bottom: 0; width: 100%; height: 60px; flex-direction: row;
+                justify-content: space-around; padding: 0; border-top: 1px solid var(--border);
+                border-right: none; z-index: 20;
+            }
+            .menu-item { flex-direction: column; gap: 2px; font-size: 0.7rem; border-radius: 0; width: 100%; justify-content: center; }
+            .menu-item span { font-size: 24px; }
+            .content { padding-bottom: 80px; } /* Espaço para menu footer */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="view-auth" class="auth-container">
+        <div class="auth-box">
+            <div class="brand">
+                <span class="material-symbols-rounded text-primary">mail</span> JinocaMailer
+            </div>
+            
+            <form id="login-form">
+                <label>E-mail</label>
+                <input type="email" id="auth-email" required placeholder="seu@email.com">
+                
+                <label>Senha</label>
+                <input type="password" id="auth-pass" required placeholder="******">
+                
+                <button type="submit" class="btn w-full">Entrar no Sistema</button>
+                <div style="text-align: center; margin-top: 15px; font-size: 0.9rem; color: var(--text-gray);">
+                    <span onclick="toggleAuthMode()" style="cursor: pointer; text-decoration: underline;">Criar nova conta</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="view-dash" class="hidden">
+        <header class="dash-header">
+            <div class="brand" style="font-size: 1.2rem; margin:0;">Jinoca</div>
+            <button onclick="logout()" class="btn-outline" style="padding: 5px 10px; border-radius: 6px;">
+                <span class="material-symbols-rounded">logout</span>
+            </button>
+        </header>
+
+        <div class="dash-body">
+            <nav class="sidebar">
+                <div class="menu-item active" onclick="nav('campaign')">
+                    <span class="material-symbols-rounded">send</span>
+                    Campanha
+                </div>
+                <div class="menu-item" onclick="nav('integration')">
+                    <span class="material-symbols-rounded">integration_instructions</span>
+                    Integração
+                </div>
+                <div class="menu-item" onclick="nav('account')">
+                    <span class="material-symbols-rounded">person</span>
+                    Conta
+                </div>
+            </nav>
+
+            <main class="content">
+                
+                <div id="tab-campaign">
+                    <h2 style="margin-bottom: 15px;">Enviar Campanha</h2>
+                    <div class="card">
+                        <form id="campaign-form">
+                            <label>Nome do Remetente</label>
+                            <input type="text" id="camp-from" placeholder="Ex: Marketing Jinoca">
+
+                            <label>Destinatário (E-mail)</label>
+                            <input type="email" id="camp-to" required placeholder="cliente@exemplo.com">
+                            
+                            <label>Assunto</label>
+                            <input type="text" id="camp-subject" required placeholder="Promoção imperdível...">
+                            
+                            <label>Conteúdo do E-mail (HTML)</label>
+                            <textarea id="camp-html" rows="6" required placeholder="<p>Olá Cliente,</p>..."></textarea>
+                            
+                            <button type="submit" class="btn w-full">
+                                <span class="material-symbols-rounded">rocket_launch</span> Enviar Agora
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="tab-integration" class="hidden">
+                    <h2 style="margin-bottom: 15px;">Credenciais para Desenvolvedores</h2>
+                    <p style="color: var(--text-gray); margin-bottom: 20px;">Use estes dados para configurar o envio no seu site WordPress, Loja Virtual ou Sistema Customizado.</p>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 10px; display:flex; align-items:center; gap:8px;">
+                            <span class="material-symbols-rounded" style="color:#22c55e">key</span>
+                            Sua API Key
+                        </h3>
+                        <div class="api-box">
+                            <span id="display-key">Carregando...</span>
+                        </div>
+                        <button onclick="resetKey()" class="btn-outline w-full" style="justify-content: center; padding: 10px;">
+                            <span class="material-symbols-rounded">refresh</span> Gerar Nova Chave
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 10px;">Configuração SMTP / API</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <div>
+                                <label>Host / Endpoint</label>
+                                <input type="text" readonly value="http://jinoca.com/api/v1/send" style="background: #111; color: #aaa;">
+                            </div>
+                            <div>
+                                <label>Usuário SMTP</label>
+                                <input type="text" readonly id="display-user" style="background: #111; color: #aaa;">
+                            </div>
+                            <div>
+                                <label>Senha SMTP</label>
+                                <input type="text" readonly value="(Use sua API Key acima)" style="background: #111; color: #aaa;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-account" class="hidden">
+                    <h2 style="margin-bottom: 15px;">Minha Conta</h2>
+                    <div class="card">
+                        <p style="color: var(--text-gray)">Logado como:</p>
+                        <h3 id="account-email">...</h3>
+                        <br>
+                        <p style="font-size: 0.9rem; color: var(--text-gray)">Plano: VPS Dedicado (Ativo)</p>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO ---
+        // IMPORTANTE: Substitua pelo IP REAL do seu VPS
+        const API_URL = 'http://66.70.233.64:3000'; 
+
+        let isRegistering = false;
+        const token = localStorage.getItem('jinoca_token');
+
+        // Inicialização
+        if (token) {
+            showDash();
+        }
+
+        // Auth Logic
+        function toggleAuthMode() {
+            isRegistering = !isRegistering;
+            const btn = document.querySelector('#login-form button');
+            const link = document.querySelector('#login-form span');
+            if (isRegistering) {
+                btn.innerText = 'Criar Conta Grátis';
+                link.innerText = 'Já tenho conta (Login)';
+            } else {
+                btn.innerText = 'Entrar no Sistema';
+                link.innerText = 'Criar nova conta';
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-pass').value;
+            const endpoint = isRegistering ? '/auth/register' : '/auth/login';
+
+            try {
+                const res = await fetch(API_URL + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (isRegistering) {
+                        alert('Conta criada! Faça login agora.');
+                        toggleAuthMode();
+                    } else {
+                        localStorage.setItem('jinoca_token', data.token);
+                        localStorage.setItem('jinoca_email', data.email);
+                        window.location.reload();
+                    }
+                } else {
+                    alert('Erro: ' + (data.error || 'Falha desconhecida'));
+                }
+            } catch (err) { alert('Erro de conexão com o servidor'); }
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.reload();
+        }
+
+        function showDash() {
+            document.getElementById('view-auth').classList.add('hidden');
+            document.getElementById('view-dash').classList.remove('hidden');
+            document.getElementById('account-email').innerText = localStorage.getItem('jinoca_email');
+            document.getElementById('display-user').value = localStorage.getItem('jinoca_email');
+            loadCredentials();
+        }
+
+        // Navegação Abas
+        function nav(tab) {
+            document.querySelectorAll('.content > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // Carregar Credenciais (API Key)
+        async function loadCredentials() {
+            try {
+                const res = await fetch(API_URL + '/dashboard/credentials', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if(data.apiKey) {
+                    document.getElementById('display-key').innerText = data.apiKey;
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function resetKey() {
+            if(!confirm('Tem certeza? A chave antiga deixará de funcionar.')) return;
+            try {
+                const res = await fetch(API_URL + '/dashboard/reset-key', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                document.getElementById('display-key').innerText = data.newKey;
+                alert('Nova chave gerada!');
+            } catch (err) { alert('Erro ao gerar chave'); }
+        }
+
+        // Enviar Campanha (Interna)
+        document.getElementById('campaign-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Enviando...';
+            btn.disabled = true;
+
+            const payload = {
+                to: document.getElementById('camp-to').value,
+                subject: document.getElementById('camp-subject').value,
+                html: document.getElementById('camp-html').value,
+                fromName: document.getElementById('camp-from').value
+            };
+
+            try {
+                const res = await fetch(API_URL + '/dashboard/send-internal', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    alert('✅ Campanha enviada para a fila!');
+                    e.target.reset();
+                } else {
+                    alert('❌ Erro ao enviar.');
+                }
+            } catch (err) { alert('Erro de conexão'); }
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>
