@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jinoca Mailer</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { primary: '#6366f1', surface: '#1e293b', bg: '#0f172a', border: '#334155' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        .editor-preview { background: white; color: black; min-height: 300px; padding: 20px; border-radius: 8px; overflow-y: auto; }
+        .active-nav { color: #6366f1; background: rgba(99, 102, 241, 0.1); }
+        [contenteditable]:focus { outline: 2px solid #6366f1; }
+    </style>
+</head>
+<body>
+
+    <div id="view-auth" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-surface border border-border p-8 rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold flex justify-center items-center gap-2">
+                    <span class="material-symbols-rounded text-primary">rocket_launch</span> Jinoca
+                </h1>
+                <p class="text-gray-400 text-sm">Plataforma de E-mail</p>
+            </div>
+            
+            <form id="login-form" class="space-y-4">
+                <input type="email" id="login-email" placeholder="E-mail" class="w-full bg-bg border border-border rounded-lg p-3 outline-none focus:border-primary" required>
+                <input type="password" id="login-pass" placeholder="Senha" class="w-full bg-bg border border-border rounded-lg p-3 outline-none focus:border-primary" required>
+                <button type="submit" class="w-full bg-primary hover:bg-indigo-600 text-white font-bold py-3 rounded-lg transition">Entrar</button>
+            </form>
+
+            <form id="register-form" class="space-y-4 hidden">
+                <input type="email" id="reg-email" placeholder="Seu melhor E-mail" class="w-full bg-bg border border-border rounded-lg p-3 outline-none focus:border-primary" required>
+                <input type="password" id="reg-pass" placeholder="Defina uma senha" class="w-full bg-bg border border-border rounded-lg p-3 outline-none focus:border-primary" required>
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition">Criar Conta Grátis</button>
+            </form>
+            
+            <div class="text-center mt-6 pt-6 border-t border-border">
+                 <button onclick="toggleAuth()" id="auth-toggle-btn" class="text-sm text-primary hover:underline">Não tem conta? Cadastre-se</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-dash" class="hidden flex h-screen overflow-hidden bg-bg">
+        
+        <aside class="hidden md:flex w-64 bg-surface border-r border-border flex-col">
+            <div class="p-6 font-bold text-xl flex items-center gap-2 text-white">
+                <span class="material-symbols-rounded text-primary">mail_switch</span> Jinoca
+            </div>
+            <nav class="flex-1 space-y-1 p-3">
+                <button onclick="nav('campaigns')" class="nav-item w-full flex items-center gap-3 p-3 rounded-lg text-gray-400 hover:text-white transition text-left active-nav" id="desk-nav-campaigns">
+                    <span class="material-symbols-rounded">list_alt</span> Campanhas
+                </button>
+                <button onclick="nav('integration')" class="nav-item w-full flex items-center gap-3 p-3 rounded-lg text-gray-400 hover:text-white transition text-left" id="desk-nav-integration">
+                    <span class="material-symbols-rounded">api</span> Credenciais
+                </button>
+                <button onclick="nav('settings')" class="nav-item w-full flex items-center gap-3 p-3 rounded-lg text-gray-400 hover:text-white transition text-left" id="desk-nav-settings">
+                    <span class="material-symbols-rounded">settings</span> Configurações
+                </button>
+            </nav>
+            <div class="p-4 border-t border-border text-sm">
+                <p class="truncate font-bold mb-2" id="user-email-disp">...</p>
+                <button onclick="logout()" class="text-red-400 flex items-center gap-1 text-xs"><span class="material-symbols-rounded text-sm">logout</span> Sair</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto relative flex flex-col pb-20 md:pb-0">
+            
+            <div class="md:hidden bg-surface p-4 flex justify-between items-center border-b border-border sticky top-0 z-20">
+                <span class="font-bold">Jinoca Mailer</span>
+                <button onclick="logout()" class="text-red-400"><span class="material-symbols-rounded">logout</span></button>
+            </div>
+
+            <div id="tab-campaigns" class="p-4 md:p-6 max-w-6xl mx-auto w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold">Campanhas</h2>
+                    <button onclick="openCreator()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2">
+                        <span class="material-symbols-rounded">add</span> <span class="hidden md:inline">Nova Campanha</span>
+                    </button>
+                </div>
+                <div class="bg-surface rounded-xl border border-border overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-bg text-gray-400"><tr><th class="p-4">Assunto</th><th class="p-4 text-right">Data</th></tr></thead>
+                        <tbody id="history-list" class="divide-y divide-border">
+                            <tr><td colspan="2" class="p-6 text-center text-gray-500">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-creator" class="hidden absolute inset-0 bg-bg z-30 flex flex-col">
+                <div class="bg-surface border-b border-border p-4 flex justify-between items-center">
+                    <button onclick="closeCreator()" class="text-gray-400 flex items-center gap-1"><span class="material-symbols-rounded">arrow_back</span> Voltar</button>
+                    <span class="font-bold">Nova Campanha</span>
+                    <button onclick="sendCampaign()" class="bg-green-600 text-white px-4 py-1 rounded-lg font-bold flex items-center gap-1">
+                        <span class="material-symbols-rounded">send</span> <span class="hidden md:inline">Enviar</span>
+                    </button>
+                </div>
+                <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                    <div class="w-full md:w-1/3 p-4 overflow-y-auto border-r border-border space-y-4 bg-surface/50">
+                        <input id="new-subject" class="w-full bg-bg border border-border rounded p-3 text-white" placeholder="Assunto">
+                        <input id="new-to" class="w-full bg-bg border border-border rounded p-3 text-white" placeholder="Para: email@cliente.com">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="applyTemplate('promo')" class="p-2 bg-surface border border-border rounded text-xs hover:border-primary">Promoção</button>
+                            <button onclick="applyTemplate('welcome')" class="p-2 bg-surface border border-border rounded text-xs hover:border-primary">Boas Vindas</button>
+                            <button onclick="applyTemplate('simple')" class="p-2 bg-surface border border-border rounded text-xs hover:border-primary">Simples</button>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-2/3 p-4 bg-gray-900 overflow-y-auto">
+                        <div id="visual-editor" contenteditable="true" class="editor-preview shadow-xl h-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-integration" class="hidden p-4 md:p-6 max-w-4xl mx-auto w-full">
+                <h2 class="text-2xl font-bold mb-6">Credenciais</h2>
+                <div class="bg-surface p-6 rounded-xl border border-border mb-4">
+                    <h3 class="font-bold mb-2 text-green-400 flex items-center gap-2"><span class="material-symbols-rounded">key</span> API Key</h3>
+                    <div class="bg-bg p-3 rounded font-mono text-sm text-green-400 break-all select-all" id="api-key-disp">Carregando...</div>
+                </div>
+                <div class="bg-surface p-6 rounded-xl border border-border">
+                    <h3 class="font-bold mb-2 text-orange-400 flex items-center gap-2"><span class="material-symbols-rounded">dns</span> SMTP & Endpoint</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between border-b border-border pb-2"><span>Endpoint:</span> <span class="font-mono text-white">https://api.jinoca.com/api/v1/send</span></div>
+                        <div class="flex justify-between border-b border-border pb-2"><span>Host SMTP:</span> <span class="font-mono text-white">api.jinoca.com</span></div>
+                        <div class="flex justify-between"><span>Porta:</span> <span class="font-mono text-white">25</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-settings" class="hidden p-4 md:p-6 max-w-2xl mx-auto w-full">
+                <h2 class="text-2xl font-bold mb-6">Configurações</h2>
+                <div class="bg-surface p-6 rounded-xl border border-border">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">URL do Logo</label>
+                    <input id="set-logo" class="w-full bg-bg border border-border rounded p-3 mb-4 text-white" placeholder="https://...">
+                    <button onclick="saveSettings()" class="w-full bg-primary text-white font-bold py-3 rounded-lg">Salvar</button>
+                </div>
+            </div>
+
+        </main>
+
+        <nav class="md:hidden fixed bottom-0 w-full bg-surface border-t border-border flex justify-around p-2 z-50">
+            <button onclick="nav('campaigns')" id="mob-nav-campaigns" class="flex flex-col items-center p-2 text-gray-400 active-nav"><span class="material-symbols-rounded">list</span></button>
+            <button onclick="openCreator()" class="bg-primary rounded-full p-3 -mt-8 shadow-lg text-white border-4 border-bg"><span class="material-symbols-rounded">add</span></button>
+            <button onclick="nav('integration')" id="mob-nav-integration" class="flex flex-col items-center p-2 text-gray-400"><span class="material-symbols-rounded">api</span></button>
+        </nav>
+    </div>
+
+    <script>
+        const API = 'https://api.jinoca.com';
+        let token = localStorage.getItem('jinoca_token');
+        let isRegister = false;
+
+        if(token) {
+            document.getElementById('view-auth').classList.add('hidden');
+            document.getElementById('view-dash').classList.remove('hidden');
+            document.getElementById('user-email-disp').innerText = localStorage.getItem('jinoca_email');
+            nav('campaigns');
+        }
+
+        // --- AUTH ---
+        function toggleAuth() {
+            isRegister = !isRegister;
+            const login = document.getElementById('login-form');
+            const reg = document.getElementById('register-form');
+            const btn = document.getElementById('auth-toggle-btn');
+            
+            if(isRegister) {
+                login.classList.add('hidden');
+                reg.classList.remove('hidden');
+                btn.innerText = 'Já tem conta? Fazer Login';
+            } else {
+                login.classList.remove('hidden');
+                reg.classList.add('hidden');
+                btn.innerText = 'Não tem conta? Cadastre-se';
+            }
+        }
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerText = 'Criando...';
+            try {
+                const res = await fetch(`${API}/auth/register`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: document.getElementById('reg-email').value, password: document.getElementById('reg-pass').value })
+                });
+                if(res.ok) {
+                    Swal.fire('Sucesso', 'Conta criada! Faça login.', 'success');
+                    toggleAuth();
+                } else { Swal.fire('Erro', 'Falha no registro', 'error'); }
+            } catch(err) { Swal.fire('Erro', 'Falha de conexão', 'error'); }
+            btn.innerText = 'Criar Conta Grátis';
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const res = await fetch(`${API}/auth/login`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: document.getElementById('login-email').value, password: document.getElementById('login-pass').value })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('jinoca_token', data.token);
+                    localStorage.setItem('jinoca_email', data.email);
+                    localStorage.setItem('jinoca_logo', data.logo || '');
+                    window.location.reload();
+                } else { Swal.fire('Erro', data.error, 'error'); }
+            } catch(err) { Swal.fire('Erro', 'Falha de conexão', 'error'); }
+        });
+
+        function logout() { localStorage.clear(); window.location.reload(); }
+
+        // --- NAV ---
+        function nav(tab) {
+            ['campaigns', 'integration', 'settings'].forEach(t => {
+                document.getElementById('tab-'+t).classList.add('hidden');
+                if(document.getElementById('desk-nav-'+t)) document.getElementById('desk-nav-'+t).classList.remove('active-nav', 'text-white', 'bg-surface');
+                if(document.getElementById('mob-nav-'+t)) document.getElementById('mob-nav-'+t).classList.remove('text-primary');
+            });
+            document.getElementById('tab-'+tab).classList.remove('hidden');
+            
+            if(tab === 'campaigns') loadHistory();
+            if(tab === 'integration') loadCreds();
+        }
+
+        function openCreator() { document.getElementById('tab-creator').classList.remove('hidden'); }
+        function closeCreator() { document.getElementById('tab-creator').classList.add('hidden'); }
+
+        // --- LOGIC ---
+        async function loadCreds() {
+            try {
+                const res = await fetch(`${API}/dashboard/credentials`, {headers: {'Authorization': `Bearer ${token}`}});
+                const data = await res.json();
+                document.getElementById('api-key-disp').innerText = data.apiKey;
+            } catch(err) { console.error(err); }
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await fetch(`${API}/dashboard/history`, {headers: {'Authorization': `Bearer ${token}`}});
+                const data = await res.json();
+                const list = document.getElementById('history-list');
+                list.innerHTML = '';
+                if(data.length === 0) {
+                    list.innerHTML = `<tr><td colspan="2" class="p-6 text-center text-gray-500">Nenhuma campanha encontrada.</td></tr>`;
+                    return;
+                }
+                data.forEach(c => {
+                    list.innerHTML += `<tr class="hover:bg-surface"><td class="p-4">${c.subject}</td><td class="p-4 text-right text-xs text-gray-400">${new Date(c.created_at).toLocaleDateString()}</td></tr>`;
+                });
+            } catch(err) { console.error(err); }
+        }
+
+        function applyTemplate(type) {
+            const tpls = {
+                promo: '<div style="text-align:center;padding:20px;background:#f8fafc;border-radius:8px"><h1 style="color:#6366f1">Super Oferta</h1><p>Aproveite o desconto.</p></div>',
+                welcome: '<div style="padding:20px"><h1>Bem-vindo!</h1><p>Obrigado por se cadastrar.</p></div>',
+                simple: '<p>Olá,</p><p>Sua mensagem aqui.</p>'
+            };
+            document.getElementById('visual-editor').innerHTML = tpls[type] || '';
+        }
+
+        async function sendCampaign() {
+            const payload = {
+                subject: document.getElementById('new-subject').value,
+                to: document.getElementById('new-to').value,
+                html: document.getElementById('visual-editor').innerHTML
+            };
+            
+            Swal.fire({title: 'Enviando...', didOpen: () => Swal.showLoading()});
+            
+            try {
+                const res = await fetch(`${API}/dashboard/create-campaign`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) {
+                    Swal.fire('Sucesso', 'E-mail enviado!', 'success');
+                    closeCreator();
+                    loadHistory();
+                } else { Swal.fire('Erro', 'Falha ao processar envio.', 'error'); }
+            } catch(err) { Swal.fire('Erro', 'Falha de conexão', 'error'); }
+        }
+
+        async function saveSettings() {
+            const logoUrl = document.getElementById('set-logo').value;
+            // Simples update de profile
+            const res = await fetch(`${API}/dashboard/profile`, {
+                method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                body: JSON.stringify({ logoUrl, companyName: 'User' })
+            });
+            if(res.ok) {
+                localStorage.setItem('jinoca_logo', logoUrl);
+                Swal.fire('Salvo', 'Configurações atualizadas', 'success');
+            }
+        }
+    </script>
+</body>
+</html>
