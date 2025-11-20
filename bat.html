@@ -1,361 +1,529 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jinoca Mailer | Painel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jinoca Mailer Pro</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --border: #334155;
-            --text: #f8fafc;
-            --text-gray: #94a3b8;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 16px; }
-        
-        /* Utilitários */
-        .hidden { display: none !important; }
-        .w-full { width: 100%; }
-        .btn {
-            background: var(--primary); color: white; border: none; padding: 14px; 
-            border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; gap: 8px; font-size: 1rem;
-            transition: opacity 0.2s;
-        }
-        .btn:active { opacity: 0.8; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-gray); }
-        
-        input, textarea {
-            width: 100%; background: var(--bg); border: 1px solid var(--border);
-            color: white; padding: 12px; border-radius: 8px; font-size: 1rem; margin-bottom: 15px;
-        }
-        input:focus, textarea:focus { border-color: var(--primary); outline: none; }
-        label { display: block; color: var(--text-gray); margin-bottom: 6px; font-size: 0.9rem; }
-
-        /* Layout Login */
-        .auth-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 20px; }
-        .auth-box { background: var(--surface); padding: 30px; border-radius: 16px; border: 1px solid var(--border); }
-        .brand { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-
-        /* Layout Dashboard */
-        .dash-header {
-            padding: 15px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;
-        }
-        
-        .dash-body { display: flex; min-height: calc(100vh - 65px); }
-        
-        .sidebar {
-            width: 250px; background: var(--surface); border-right: 1px solid var(--border);
-            padding: 20px; display: flex; flex-direction: column; gap: 5px;
-        }
-        
-        .menu-item {
-            padding: 12px; border-radius: 8px; color: var(--text-gray); cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .menu-item.active { background: rgba(79, 70, 229, 0.1); color: var(--primary); font-weight: 600; }
-        
-        .content { flex: 1; padding: 20px; overflow-y: auto; }
-
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-        
-        /* API Box Style */
-        .api-box {
-            background: #000; padding: 15px; border-radius: 8px; border: 1px solid var(--border);
-            font-family: monospace; word-break: break-all; color: #22c55e; margin-bottom: 10px;
-            position: relative;
-        }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed; bottom: 0; width: 100%; height: 60px; flex-direction: row;
-                justify-content: space-around; padding: 0; border-top: 1px solid var(--border);
-                border-right: none; z-index: 20; background: var(--surface);
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#4f46e5',
+                        dark: '#0f172a',
+                        surface: '#1e293b'
+                    }
+                }
             }
-            .menu-item { flex-direction: column; gap: 2px; font-size: 0.7rem; border-radius: 0; width: 100%; justify-content: center; }
-            .content { padding-bottom: 80px; }
         }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
+        .hidden { display: none; }
+        .step-active { border-color: #6366f1; color: #6366f1; }
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #6366f1; border-radius: 50%;
+            width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Transições suaves */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <button onclick="localStorage.clear(); window.location.reload()" 
-            style="background: #ef4444; color: white; padding: 15px; width: 100%; text-align: center; font-weight: bold; border: none; cursor: pointer; z-index: 9999;">
-        ⚠️ CLIQUE AQUI UMA VEZ PARA LIMPAR ERROS E REINICIAR ⚠️
-    </button>
-
-    <div id="view-auth" class="auth-container">
-        <div class="auth-box">
-            <div class="brand">
-                <span class="material-symbols-rounded text-primary">mail</span> JinocaMailer
+    <div id="view-auth" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-surface p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700 fade-in">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-primary flex justify-center items-center gap-2">
+                    <span class="material-symbols-rounded">mail</span> Jinoca<span class="text-white">Mailer</span>
+                </h1>
+                <p class="text-gray-400 text-sm mt-2">Automação de E-mail Inteligente</p>
             </div>
-            
-            <form id="login-form">
-                <label>E-mail</label>
-                <input type="email" id="auth-email" required placeholder="seu@email.com">
-                
-                <label>Senha</label>
-                <input type="password" id="auth-pass" required placeholder="******">
-                
-                <button type="submit" class="btn w-full">Entrar no Sistema</button>
-                <div style="text-align: center; margin-top: 15px; font-size: 0.9rem; color: var(--text-gray);">
-                    <span onclick="toggleAuthMode()" style="cursor: pointer; text-decoration: underline;">Criar nova conta</span>
+
+            <form id="form-login" class="space-y-4">
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">E-mail</label>
+                    <input type="email" id="login-email" class="w-full bg-dark border border-gray-600 rounded-lg p-3 focus:border-primary outline-none transition" placeholder="voce@empresa.com" required>
                 </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">Senha</label>
+                    <input type="password" id="login-pass" class="w-full bg-dark border border-gray-600 rounded-lg p-3 focus:border-primary outline-none" placeholder="••••••" required>
+                    <div class="text-right mt-1">
+                        <a href="#" onclick="switchAuth('forgot')" class="text-xs text-primary hover:underline">Esqueceu a senha?</a>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 rounded-lg transition flex justify-center items-center gap-2">
+                    <span id="login-text">Entrar</span>
+                    <div id="login-loader" class="loader hidden"></div>
+                </button>
+                <div class="text-center text-sm text-gray-400 mt-4">
+                    Não tem conta? <a href="#" onclick="switchAuth('register')" class="text-primary hover:underline">Criar agora</a>
+                </div>
+            </form>
+
+            <form id="form-register-step1" class="space-y-4 hidden">
+                <h2 class="text-xl font-semibold mb-4">Criar Conta</h2>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">Seu E-mail</label>
+                    <input type="email" id="reg-email" class="w-full bg-dark border border-gray-600 rounded-lg p-3 outline-none" required>
+                </div>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg">Receber Código</button>
+                <div class="text-center mt-4"><a href="#" onclick="switchAuth('login')" class="text-sm text-gray-400">Voltar</a></div>
+            </form>
+
+            <form id="form-register-step2" class="space-y-4 hidden">
+                <h2 class="text-xl font-semibold mb-2">Finalizar Cadastro</h2>
+                <p class="text-xs text-gray-400 mb-4">Enviamos um código para seu e-mail.</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="reg-code" placeholder="Código (6 dígitos)" class="bg-dark border border-gray-600 rounded-lg p-3 outline-none" required>
+                    <input type="text" id="reg-name" placeholder="Nome da Empresa" class="bg-dark border border-gray-600 rounded-lg p-3 outline-none" required>
+                </div>
+                <input type="password" id="reg-pass" placeholder="Defina sua Senha" class="w-full bg-dark border border-gray-600 rounded-lg p-3 outline-none" required>
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg">Registrar</button>
+            </form>
+
+            <form id="form-forgot" class="space-y-4 hidden">
+                <h2 class="text-xl font-semibold">Recuperar Senha</h2>
+                <div id="forgot-step1">
+                    <input type="email" id="forgot-email" placeholder="Seu e-mail" class="w-full bg-dark border border-gray-600 rounded-lg p-3 mb-3 outline-none">
+                    <button type="button" onclick="sendResetCode()" class="w-full bg-primary text-white font-bold py-3 rounded-lg">Enviar Código</button>
+                </div>
+                <div id="forgot-step2" class="hidden space-y-3">
+                    <input type="text" id="forgot-code" placeholder="Código recebido" class="w-full bg-dark border border-gray-600 rounded-lg p-3 outline-none">
+                    <input type="password" id="forgot-newpass" placeholder="Nova Senha" class="w-full bg-dark border border-gray-600 rounded-lg p-3 outline-none">
+                    <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg">Alterar Senha</button>
+                </div>
+                <div class="text-center mt-4"><a href="#" onclick="switchAuth('login')" class="text-sm text-gray-400">Cancelar</a></div>
             </form>
         </div>
     </div>
 
-    <div id="view-dash" class="hidden">
-        <header class="dash-header">
-            <div class="brand" style="font-size: 1.2rem; margin:0;">Jinoca</div>
-            <button onclick="logout()" class="btn-outline" style="padding: 5px 10px; border-radius: 6px;">
-                <span class="material-symbols-rounded">logout</span>
-            </button>
-        </header>
-
-        <div class="dash-body">
-            <nav class="sidebar">
-                <div class="menu-item active" onclick="nav('campaign')">
-                    <span class="material-symbols-rounded">send</span> Campanha
-                </div>
-                <div class="menu-item" onclick="nav('integration')">
-                    <span class="material-symbols-rounded">api</span> Integração
-                </div>
-                <div class="menu-item" onclick="nav('account')">
-                    <span class="material-symbols-rounded">person</span> Conta
-                </div>
+    <div id="view-dash" class="hidden flex h-screen overflow-hidden bg-dark">
+        
+        <aside class="w-64 bg-surface border-r border-gray-700 flex flex-col hidden md:flex">
+            <div class="p-6 border-b border-gray-700 font-bold text-xl flex items-center gap-2">
+                <span class="material-symbols-rounded text-primary">mail</span> Jinoca
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a onclick="nav('campaign')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-dark cursor-pointer bg-dark/50 text-primary">
+                    <span class="material-symbols-rounded">rocket_launch</span> Nova Campanha
+                </a>
+                <a onclick="nav('history')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-dark cursor-pointer text-gray-400">
+                    <span class="material-symbols-rounded">history</span> Histórico
+                </a>
+                <a onclick="nav('integration')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-dark cursor-pointer text-gray-400">
+                    <span class="material-symbols-rounded">hub</span> Integração
+                </a>
+                <a onclick="nav('settings')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-dark cursor-pointer text-gray-400">
+                    <span class="material-symbols-rounded">settings</span> Configurações
+                </a>
             </nav>
+            <div class="p-4 border-t border-gray-700">
+                <div class="text-sm text-gray-400 mb-2" id="user-display">...</div>
+                <button onclick="logout()" class="flex items-center gap-2 text-red-400 hover:text-red-300 text-sm">
+                    <span class="material-symbols-rounded">logout</span> Sair
+                </button>
+            </div>
+        </aside>
 
-            <main class="content">
-                
-                <div id="tab-campaign">
-                    <h2 style="margin-bottom: 15px;">Enviar Campanha</h2>
-                    <div class="card">
-                        <form id="campaign-form">
-                            <label>Nome do Remetente</label>
-                            <input type="text" id="camp-from" placeholder="Ex: Marketing Jinoca">
+        <main class="flex-1 overflow-y-auto relative">
+            <header class="md:hidden bg-surface p-4 flex justify-between items-center border-b border-gray-700">
+                <div class="font-bold">Jinoca</div>
+                <button onclick="logout()" class="text-red-400"><span class="material-symbols-rounded">logout</span></button>
+            </header>
 
-                            <label>Destinatário (E-mail)</label>
-                            <input type="email" id="camp-to" required placeholder="cliente@exemplo.com">
-                            
-                            <label>Assunto</label>
-                            <input type="text" id="camp-subject" required placeholder="Promoção imperdível...">
-                            
-                            <label>Conteúdo HTML</label>
-                            <textarea id="camp-html" rows="6" required placeholder="<p>Olá Cliente,</p>..."></textarea>
-                            
-                            <button type="submit" class="btn w-full">
-                                <span class="material-symbols-rounded">rocket_launch</span> Enviar Agora
-                            </button>
-                        </form>
-                    </div>
-                </div>
+            <div class="p-8 max-w-5xl mx-auto">
 
-                <div id="tab-integration" class="hidden">
-                    <h2 style="margin-bottom: 15px;">Integração API</h2>
-                    <p style="color: var(--text-gray); margin-bottom: 20px;">Use estas credenciais no seu site externo.</p>
-
-                    <div class="card">
-                        <h3 style="margin-bottom: 10px; color:#22c55e">Sua API Key</h3>
-                        <div class="api-box">
-                            <span id="display-key">Carregando...</span>
-                        </div>
-                        <button onclick="resetKey()" class="btn-outline w-full" style="justify-content: center; padding: 10px;">
-                            <span class="material-symbols-rounded">refresh</span> Gerar Nova Chave
-                        </button>
+                <div id="tab-campaign" class="fade-in">
+                    <h2 class="text-2xl font-bold mb-6">Criar Campanha</h2>
+                    
+                    <div class="flex justify-between mb-8 relative">
+                        <div class="absolute top-1/2 left-0 w-full h-1 bg-gray-700 -z-10"></div>
+                        <div class="step-dot bg-primary w-8 h-8 rounded-full flex items-center justify-center font-bold text-white z-10">1</div>
+                        <div class="step-dot bg-gray-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white z-10" id="step-dot-2">2</div>
+                        <div class="step-dot bg-gray-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white z-10" id="step-dot-3">3</div>
                     </div>
 
-                    <div class="card">
-                        <h3 style="margin-bottom: 10px;">Configuração</h3>
-                        <div style="display: grid; gap: 10px;">
+                    <form id="wizard-form">
+                        <div id="step-1" class="space-y-6 bg-surface p-6 rounded-xl border border-gray-700">
+                            <h3 class="text-lg font-semibold text-primary">Configurações Básicas</h3>
                             <div>
-                                <label>Host / Endpoint (CORRIGIDO)</label>
-                                <input type="text" readonly value="https://api.jinoca.com/api/v1/send" style="background: #111; color: #aaa;">
+                                <label class="block text-gray-400 text-sm">Nome do Remetente</label>
+                                <input type="text" id="camp-from" class="w-full bg-dark border border-gray-600 rounded p-3 mt-1">
+                                <p class="text-xs text-gray-500 mt-1">Dica: Use o nome da sua marca. O e-mail será noreply@jinoca.com para evitar SPAM.</p>
                             </div>
                             <div>
-                                <label>Usuário SMTP</label>
-                                <input type="text" readonly id="display-user" style="background: #111; color: #aaa;">
+                                <label class="block text-gray-400 text-sm">Assunto</label>
+                                <input type="text" id="camp-subject" class="w-full bg-dark border border-gray-600 rounded p-3 mt-1" required>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="button" onclick="nextStep(2)" class="bg-primary px-6 py-2 rounded hover:bg-secondary transition">Próximo ></button>
+                            </div>
+                        </div>
+
+                        <div id="step-2" class="space-y-6 bg-surface p-6 rounded-xl border border-gray-700 hidden">
+                            <h3 class="text-lg font-semibold text-primary">Escolha o Conteúdo</h3>
+                            <div class="flex gap-3 mb-4">
+                                <button type="button" onclick="loadTemplate('verify')" class="bg-dark border border-gray-600 px-3 py-1 rounded text-xs hover:border-primary">Verificação</button>
+                                <button type="button" onclick="loadTemplate('promo')" class="bg-dark border border-gray-600 px-3 py-1 rounded text-xs hover:border-primary">Promoção</button>
+                                <button type="button" onclick="loadTemplate('blank')" class="bg-dark border border-gray-600 px-3 py-1 rounded text-xs hover:border-primary">Limpo</button>
+                            </div>
+                            <textarea id="camp-html" rows="8" class="w-full bg-dark border border-gray-600 rounded p-3 font-mono text-sm" placeholder="HTML aqui..."></textarea>
+                            <div class="flex justify-between">
+                                <button type="button" onclick="prevStep(1)" class="text-gray-400 hover:text-white">< Voltar</button>
+                                <button type="button" onclick="nextStep(3)" class="bg-primary px-6 py-2 rounded hover:bg-secondary transition">Próximo ></button>
+                            </div>
+                        </div>
+
+                        <div id="step-3" class="space-y-6 bg-surface p-6 rounded-xl border border-gray-700 hidden">
+                            <h3 class="text-lg font-semibold text-primary">Destinatários e Envio</h3>
+                            <div>
+                                <label class="block text-gray-400 text-sm">Para (E-mail)</label>
+                                <input type="email" id="camp-to" class="w-full bg-dark border border-gray-600 rounded p-3 mt-1" placeholder="cliente@email.com">
+                            </div>
+                            <div>
+                                <label class="block text-gray-400 text-sm">Agendar (Opcional)</label>
+                                <input type="datetime-local" id="camp-schedule" class="w-full bg-dark border border-gray-600 rounded p-3 mt-1 text-white">
+                            </div>
+                            <div class="flex justify-between items-center pt-4">
+                                <button type="button" onclick="prevStep(2)" class="text-gray-400 hover:text-white">< Voltar</button>
+                                <button type="submit" class="bg-green-600 px-8 py-3 rounded font-bold hover:bg-green-700 transition flex items-center gap-2">
+                                    <span class="material-symbols-rounded">send</span> Confirmar Envio
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="tab-integration" class="hidden fade-in space-y-6">
+                    <h2 class="text-2xl font-bold">Integração para Desenvolvedores</h2>
+                    
+                    <div class="bg-surface border border-gray-700 rounded-xl p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-primary/20 p-2 rounded text-primary"><span class="material-symbols-rounded">api</span></div>
+                            <h3 class="text-xl font-bold">API HTTP</h3>
+                        </div>
+                        <p class="text-gray-400 mb-4 text-sm">Integre em qualquer site usando requisições POST.</p>
+                        <div class="bg-black p-4 rounded-lg font-mono text-sm text-green-400 break-all mb-4" id="display-key">
+                            ••••••••••••
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-500">Endpoint</label>
+                                <input readonly value="https://api.jinoca.com/api/v1/send" class="w-full bg-dark border border-gray-700 rounded p-2 text-sm">
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="showKey()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm w-full">Mostrar Chave</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface border border-gray-700 rounded-xl p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-orange-500/20 p-2 rounded text-orange-500"><span class="material-symbols-rounded">dns</span></div>
+                            <h3 class="text-xl font-bold">Credenciais SMTP</h3>
+                        </div>
+                        <p class="text-gray-400 mb-4 text-sm">Para usar em plugins de WordPress ou sistemas legados.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div class="bg-dark p-3 rounded border border-gray-700">
+                                <div class="text-gray-500 text-xs">Host</div>
+                                <div class="font-mono">api.jinoca.com</div>
+                            </div>
+                            <div class="bg-dark p-3 rounded border border-gray-700">
+                                <div class="text-gray-500 text-xs">Porta</div>
+                                <div class="font-mono">25</div>
+                            </div>
+                            <div class="bg-dark p-3 rounded border border-gray-700">
+                                <div class="text-gray-500 text-xs">Autenticação</div>
+                                <div class="font-mono">Sem auth (IP Liberado)</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div id="tab-account" class="hidden">
-                    <h2 style="margin-bottom: 15px;">Minha Conta</h2>
-                    <div class="card">
-                        <p style="color: var(--text-gray)">Logado como:</p>
-                        <h3 id="account-email">...</h3>
-                        <br>
-                        <p style="color: #22c55e">● Sistema Online e Seguro (HTTPS)</p>
+
+                <div id="tab-history" class="hidden fade-in">
+                    <h2 class="text-2xl font-bold mb-6">Histórico de Envios</h2>
+                    <div class="bg-surface border border-gray-700 rounded-xl overflow-hidden">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-dark text-gray-400">
+                                <tr>
+                                    <th class="p-4">Assunto</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Data</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-list">
+                                <tr><td colspan="3" class="p-4 text-center text-gray-500">Carregando...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-            </main>
-        </div>
+                <div id="tab-settings" class="hidden fade-in">
+                    <h2 class="text-2xl font-bold mb-6">Configurações da Conta</h2>
+                    <form id="settings-form" class="bg-surface border border-gray-700 rounded-xl p-6 space-y-4 max-w-xl">
+                        <div>
+                            <label class="block text-gray-400 text-sm">URL do seu Logo (Para E-mails)</label>
+                            <input type="url" id="set-logo" placeholder="https://meusite.com/logo.png" class="w-full bg-dark border border-gray-600 rounded p-3 mt-1">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm">Nome da Empresa</label>
+                            <input type="text" id="set-name" class="w-full bg-dark border border-gray-600 rounded p-3 mt-1">
+                        </div>
+                        <div class="pt-4 border-t border-gray-700">
+                            <label class="block text-gray-400 text-sm">Trocar Senha (Deixe vazio para manter)</label>
+                            <input type="password" id="set-pass" placeholder="Nova senha" class="w-full bg-dark border border-gray-600 rounded p-3 mt-1">
+                        </div>
+                        <button type="submit" class="bg-primary px-6 py-2 rounded hover:bg-secondary transition w-full">Salvar Alterações</button>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+
+        <nav class="md:hidden fixed bottom-0 w-full bg-surface border-t border-gray-700 flex justify-around p-3 z-50">
+            <button onclick="nav('campaign')" class="text-primary flex flex-col items-center text-xs"><span class="material-symbols-rounded">send</span>Campanha</button>
+            <button onclick="nav('history')" class="text-gray-400 flex flex-col items-center text-xs"><span class="material-symbols-rounded">history</span>Histórico</button>
+            <button onclick="nav('settings')" class="text-gray-400 flex flex-col items-center text-xs"><span class="material-symbols-rounded">settings</span>Config</button>
+        </nav>
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO CRÍTICA ---
-        // APONTA PARA O SUBDOMÍNIO HTTPS (CORRETO)
-        const API_URL = 'https://api.jinoca.com'; 
+        const API = 'https://api.jinoca.com';
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+        let token = localStorage.getItem('jinoca_token');
 
-        // --- LÓGICA ---
-        let isRegistering = false;
-        const token = localStorage.getItem('jinoca_token');
-
-        // Iniciar
+        // --- INICIALIZAÇÃO ---
         if (token) {
-            showDash();
-        }
-
-        // Alternar Login/Registro
-        function toggleAuthMode() {
-            isRegistering = !isRegistering;
-            const btn = document.querySelector('#login-form button');
-            const link = document.querySelector('#login-form span');
-            if (isRegistering) {
-                btn.innerText = 'Criar Conta Grátis';
-                link.innerText = 'Já tenho conta (Login)';
-            } else {
-                btn.innerText = 'Entrar no Sistema';
-                link.innerText = 'Criar nova conta';
-            }
-        }
-
-        // Login / Registro
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-pass').value;
-            const endpoint = isRegistering ? '/auth/register' : '/auth/login';
-            const btn = e.target.querySelector('button');
-            
-            btn.disabled = true;
-            btn.innerText = 'Conectando...';
-
-            try {
-                const res = await fetch(API_URL + endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await res.json();
-
-                if (res.ok) {
-                    if (isRegistering) {
-                        alert('Conta criada com sucesso! Agora faça login.');
-                        toggleAuthMode();
-                    } else {
-                        // SALVAR DADOS (RESOLVE O UNDEFINED)
-                        localStorage.setItem('jinoca_token', data.token);
-                        localStorage.setItem('jinoca_email', data.email);
-                        window.location.reload();
-                    }
-                } else {
-                    alert('Erro: ' + (data.error || 'Verifique seus dados.'));
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Erro de conexão. Verifique se o VPS está ligado.');
-            }
-            
-            btn.disabled = false;
-            if(!isRegistering) btn.innerText = 'Entrar no Sistema';
-        });
-
-        function logout() {
-            localStorage.clear();
-            window.location.reload();
-        }
-
-        function showDash() {
             document.getElementById('view-auth').classList.add('hidden');
             document.getElementById('view-dash').classList.remove('hidden');
-            
-            // Preencher email (Tratamento de erro caso esteja vazio)
-            const email = localStorage.getItem('jinoca_email');
-            document.getElementById('account-email').innerText = email || 'Usuário';
-            document.getElementById('display-user').value = email || '';
-            
-            loadCredentials();
+            document.getElementById('user-display').innerText = localStorage.getItem('jinoca_email');
+            document.getElementById('set-name').value = localStorage.getItem('jinoca_name') || '';
+            document.getElementById('camp-from').value = localStorage.getItem('jinoca_name') || '';
+            document.getElementById('set-logo').value = localStorage.getItem('jinoca_logo') || '';
         }
 
-        function nav(tab) {
-            document.querySelectorAll('.content > div').forEach(el => el.classList.add('hidden'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+        // --- AUTH LOGIC ---
+        function switchAuth(view) {
+            ['form-login', 'form-register-step1', 'form-register-step2', 'form-forgot'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            if(view === 'login') document.getElementById('form-login').classList.remove('hidden');
+            if(view === 'register') document.getElementById('form-register-step1').classList.remove('hidden');
+            if(view === 'verify') document.getElementById('form-register-step2').classList.remove('hidden');
+            if(view === 'forgot') document.getElementById('form-forgot').classList.remove('hidden');
         }
 
-        async function loadCredentials() {
-            try {
-                const res = await fetch(API_URL + '/dashboard/credentials', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if(data.apiKey) {
-                    document.getElementById('display-key').innerText = data.apiKey;
-                }
-            } catch (err) { console.error(err); }
-        }
-
-        async function resetKey() {
-            if(!confirm('A chave antiga vai parar de funcionar. Continuar?')) return;
-            try {
-                const res = await fetch(API_URL + '/dashboard/reset-key', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                document.getElementById('display-key').innerText = data.newKey;
-                alert('Nova chave gerada!');
-            } catch (err) { alert('Erro ao gerar chave'); }
-        }
-
-        document.getElementById('campaign-form').addEventListener('submit', async (e) => {
+        // 1. Login
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button');
-            btn.innerText = 'Enviando...';
-            btn.disabled = true;
+            document.getElementById('login-text').classList.add('hidden');
+            document.getElementById('login-loader').classList.remove('hidden');
+            
+            try {
+                const res = await fetch(`${API}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: document.getElementById('login-email').value, password: document.getElementById('login-pass').value })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    localStorage.setItem('jinoca_token', data.token);
+                    localStorage.setItem('jinoca_email', data.email);
+                    localStorage.setItem('jinoca_name', data.name || '');
+                    localStorage.setItem('jinoca_logo', data.logo || '');
+                    window.location.reload();
+                } else {
+                    Toast.fire({ icon: 'error', title: data.error });
+                }
+            } catch(err) { Toast.fire({ icon: 'error', title: 'Erro de conexão' }); }
+            
+            document.getElementById('login-text').classList.remove('hidden');
+            document.getElementById('login-loader').classList.add('hidden');
+        });
 
+        // 2. Register Step 1 (Send Code)
+        document.getElementById('form-register-step1').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            try {
+                const res = await fetch(`${API}/auth/send-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, type: 'register' })
+                });
+                if(res.ok) {
+                    Toast.fire({ icon: 'success', title: 'Código enviado!' });
+                    switchAuth('verify');
+                } else {
+                    const d = await res.json();
+                    Toast.fire({ icon: 'warning', title: d.error });
+                }
+            } catch(err) { Toast.fire({ icon: 'error', title: 'Erro de conexão' }); }
+        });
+
+        // 3. Register Step 2 (Verify)
+        document.getElementById('form-register-step2').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                email: document.getElementById('reg-email').value,
+                code: document.getElementById('reg-code').value,
+                companyName: document.getElementById('reg-name').value,
+                password: document.getElementById('reg-pass').value
+            };
+            try {
+                const res = await fetch(`${API}/auth/verify-register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) {
+                    Swal.fire('Sucesso!', 'Conta criada. Faça login.', 'success');
+                    switchAuth('login');
+                } else {
+                    Toast.fire({ icon: 'error', title: 'Código inválido' });
+                }
+            } catch(err) { Toast.fire({ icon: 'error', title: 'Erro ao registrar' }); }
+        });
+
+        // 4. Forgot Password
+        async function sendResetCode() {
+            const email = document.getElementById('forgot-email').value;
+            const res = await fetch(`${API}/auth/send-code`, {
+                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email, type: 'reset'})
+            });
+            if(res.ok) {
+                Toast.fire({ icon: 'success', title: 'Código enviado!' });
+                document.getElementById('forgot-step1').classList.add('hidden');
+                document.getElementById('forgot-step2').classList.remove('hidden');
+            } else { Toast.fire({ icon: 'error', title: 'E-mail não encontrado' }); }
+        }
+
+        document.getElementById('form-forgot').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                email: document.getElementById('forgot-email').value,
+                code: document.getElementById('forgot-code').value,
+                newPassword: document.getElementById('forgot-newpass').value
+            };
+            const res = await fetch(`${API}/auth/reset-password`, {
+                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+            });
+            if(res.ok) {
+                Swal.fire('Sucesso', 'Senha alterada!', 'success');
+                switchAuth('login');
+            } else { Toast.fire({ icon: 'error', title: 'Erro ao alterar senha' }); }
+        });
+
+        function logout() { localStorage.clear(); window.location.reload(); }
+
+        // --- WIZARD LOGIC ---
+        function nextStep(step) {
+            document.getElementById('step-' + (step-1)).classList.add('hidden');
+            document.getElementById('step-' + step).classList.remove('hidden');
+            document.getElementById('step-dot-' + step).classList.remove('bg-gray-700');
+            document.getElementById('step-dot-' + step).classList.add('bg-primary');
+        }
+        function prevStep(step) {
+            document.getElementById('step-' + (step+1)).classList.add('hidden');
+            document.getElementById('step-' + step).classList.remove('hidden');
+        }
+
+        function loadTemplate(type) {
+            const templates = {
+                verify: '<div style="text-align:center"><h1>Seu Código: 123456</h1><p>Use este código para validar seu acesso.</p></div>',
+                promo: '<div style="background:#f3f4f6; padding:20px"><h1>Super Oferta!</h1><p>Não perca 50% de desconto hoje.</p><button style="background:blue; color:white; padding:10px">Comprar</button></div>',
+                blank: ''
+            };
+            document.getElementById('camp-html').value = templates[type];
+        }
+
+        document.getElementById('wizard-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
             const payload = {
                 to: document.getElementById('camp-to').value,
                 subject: document.getElementById('camp-subject').value,
                 html: document.getElementById('camp-html').value,
-                fromName: document.getElementById('camp-from').value
+                scheduledFor: document.getElementById('camp-schedule').value || null
             };
 
-            try {
-                const res = await fetch(API_URL + '/dashboard/send-internal', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (res.ok) {
-                    alert('✅ E-mail enviado com sucesso!');
-                    e.target.reset();
-                } else {
-                    alert('❌ Falha ao enviar.');
-                }
-            } catch (err) { alert('Erro de conexão'); }
-            
-            btn.innerText = 'Enviar Agora';
-            btn.disabled = false;
+            const res = await fetch(`${API}/dashboard/create-campaign`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) {
+                Swal.fire('Enviado!', 'Sua campanha foi processada.', 'success');
+                document.getElementById('wizard-form').reset();
+                // Reset Wizard UI
+                document.getElementById('step-3').classList.add('hidden');
+                document.getElementById('step-1').classList.remove('hidden');
+            } else {
+                Toast.fire({ icon: 'error', title: 'Erro ao enviar' });
+            }
         });
+
+        // --- DASHBOARD NAVIGATION ---
+        function nav(tab) {
+            ['campaign', 'integration', 'history', 'settings'].forEach(t => document.getElementById('tab-'+t).classList.add('hidden'));
+            document.getElementById('tab-'+tab).classList.remove('hidden');
+            
+            // Load Data on tab switch
+            if(tab === 'integration') loadApi();
+            if(tab === 'history') loadHistory();
+        }
+
+        async function loadApi() {
+            const res = await fetch(`${API}/dashboard/credentials`, { headers: { 'Authorization': `Bearer ${token}` }});
+            const data = await res.json();
+            document.getElementById('display-key').innerText = data.apiKey;
+        }
+        function showKey() { alert('Sua chave: ' + document.getElementById('display-key').innerText); }
+
+        async function loadHistory() {
+            const res = await fetch(`${API}/dashboard/history`, { headers: { 'Authorization': `Bearer ${token}` }});
+            const data = await res.json();
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            data.forEach(item => {
+                const statusColor = item.status === 'sent' ? 'text-green-400' : 'text-yellow-400';
+                list.innerHTML += `
+                    <tr class="border-b border-gray-700 hover:bg-dark">
+                        <td class="p-4">${item.subject}</td>
+                        <td class="p-4 ${statusColor} font-bold uppercase text-xs">${item.status}</td>
+                        <td class="p-4 text-gray-400">${new Date(item.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Settings
+        document.getElementById('settings-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                logoUrl: document.getElementById('set-logo').value,
+                companyName: document.getElementById('set-name').value,
+                newPassword: document.getElementById('set-pass').value
+            };
+            const res = await fetch(`${API}/dashboard/settings`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload)
+            });
+            if(res.ok) {
+                Toast.fire({icon:'success', title:'Salvo com sucesso!'});
+                localStorage.setItem('jinoca_logo', payload.logoUrl);
+                localStorage.setItem('jinoca_name', payload.companyName);
+            }
+        });
+
     </script>
 </body>
 </html>
